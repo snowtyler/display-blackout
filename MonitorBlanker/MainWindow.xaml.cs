@@ -20,7 +20,24 @@ public sealed partial class MainWindow : Window
     {
         _blankingService = blankingService;
         InitializeComponent();
+        SetDefaultSize();
         LoadMonitors();
+    }
+
+    private void SetDefaultSize()
+    {
+        const int preferredWidth = 1560;
+        const int preferredHeight = 1080;
+
+        // Get the work area of the display where this window will appear
+        var displayArea = DisplayArea.GetFromWindowId(AppWindow.Id, DisplayAreaFallback.Primary);
+        var workArea = displayArea.WorkArea;
+
+        // Use preferred size, but don't exceed available space
+        int width = Math.Min(preferredWidth, workArea.Width);
+        int height = Math.Min(preferredHeight, workArea.Height);
+
+        AppWindow.Resize(new SizeInt32(width, height));
     }
 
     private void LoadMonitors()
