@@ -10,7 +10,9 @@ public sealed partial class App : Application, IDisposable
 {
     private TaskbarIcon? _trayIcon;
     private MainWindow? _settingsWindow;
+    private Window? _hiddenWindow;
     private BlankingService? _blankingService;
+    private HotkeyService? _hotkeyService;
     private bool _disposed;
 
     public App()
@@ -22,9 +24,16 @@ public sealed partial class App : Application, IDisposable
     {
         _blankingService = new BlankingService();
 
+        // Create a hidden window for hotkey messages
+        _hiddenWindow = new Window { Title = "MonitorBlankerHidden" };
+
+        _hotkeyService = new HotkeyService();
+        _hotkeyService.HotkeyPressed += (_, _) => ToggleBlanking();
+        _hotkeyService.Register(_hiddenWindow);
+
         _trayIcon = new TaskbarIcon
         {
-            ToolTipText = "Monitor Blanker - Click to open settings, double-click to toggle",
+            ToolTipText = "Monitor Blanker - Click to open settings, double-click to toggle (Win+Shift+B)",
             IconSource = new GeneratedIconSource
             {
                 Text = "MB",
@@ -59,7 +68,9 @@ public sealed partial class App : Application, IDisposable
     {
         if (_disposed) return;
         _disposed = true;
+        _hotkeyService?.Dispose();
         _blankingService?.Dispose();
+        _hiddenWindow?.Close();
         _trayIcon?.Dispose();
         GC.SuppressFinalize(this);
     }
