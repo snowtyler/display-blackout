@@ -22,22 +22,23 @@
 
         <StackPanel Grid.Row="0" Spacing="8">
             <TextBlock Text="Monitor Blanker" Style="{StaticResource TitleTextBlockStyle}" />
-            <TextBlock Text="Blanks secondary monitors to reduce distractions"
+            <TextBlock Text="Click monitors to toggle blanking. Dark monitors will be blanked."
                        Style="{StaticResource BodyTextBlockStyle}"
                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
         </StackPanel>
 
         <StackPanel Grid.Row="1" Spacing="16" Margin="0,24,0,0">
             <TextBlock Text="Monitors" Style="{StaticResource SubtitleTextBlockStyle}" />
-            <ItemsControl x:Name="MonitorList">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <CheckBox Content="{Binding DisplayName}"
-                                  IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                  Margin="0,4,0,4" />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+
+            <!-- Visual monitor layout -->
+            <Border Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="24"
+                    HorizontalAlignment="Left">
+                <Canvas x:Name="MonitorCanvas" />
+            </Border>
 
             <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,8,0,8" />
 
