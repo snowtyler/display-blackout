@@ -49,11 +49,10 @@ public sealed partial class MainWindow : Window
         var selectedIds = _blankingService.SelectedMonitorIds;
 
         // Reference values (in DIPs, matching Windows Display Settings at 150% DPI)
-        // User measured 1496px physical at 150% = 997 DIPs
-        const double containerWidth = 997;
-        const double baseMonitorHeight = 160; // 240px physical / 1.5
-        const double verticalPadding = 44;    // 66px physical / 1.5
-        const double monitorGap = 1.5;        // ~2px physical / 1.5
+        const double containerWidth = 998;
+        const double baseMonitorHeight = 160;
+        const double verticalPadding = 44;
+        const double monitorGap = 2;
         const double minPaddingPercent = 0.075;
 
         // Build monitor list with visual dimensions based on aspect ratio
@@ -206,16 +205,12 @@ public sealed partial class MainWindow : Window
         {
             // Selected for blanking - show as dark/will be blanked
             border.Background = new SolidColorBrush(Microsoft.UI.Colors.Black);
-            border.BorderBrush = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 0, 120, 212));
-            border.BorderThickness = new Thickness(2);
             textBlock.Foreground = new SolidColorBrush(Microsoft.UI.Colors.White);
         }
         else
         {
-            // Not selected - show as normal/active
-            border.Background = (Brush)Application.Current.Resources["CardBackgroundFillColorDefaultBrush"];
-            border.BorderBrush = (Brush)Application.Current.Resources["CardStrokeColorDefaultBrush"];
-            border.BorderThickness = new Thickness(1);
+            // Not selected - show as normal/active (matches Windows Display Settings)
+            border.Background = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 218, 218, 218));
             textBlock.Foreground = (Brush)Application.Current.Resources["TextFillColorPrimaryBrush"];
         }
     }
