@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:MonitorBlanker"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -60,88 +61,35 @@
             </Viewbox>
 
             <!-- Blanking toggle section -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1"
-                    CornerRadius="4"
-                    Padding="16,12">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Icon -->
-                    <Image Grid.Column="0"
-                           Source="ms-appx:///Assets/iconLogo.targetsize-24.png"
-                           Width="20"
-                           Height="20"
-                           Margin="0,0,16,0"
-                           VerticalAlignment="Center" />
-
-                    <!-- Text -->
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="Monitor blanking"
-                                   Style="{StaticResource BodyTextBlockStyle}" />
-                        <TextBlock Text="Blank the selected monitors"
-                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                    </StackPanel>
-
-                    <!-- Toggle switch -->
-                    <ToggleSwitch x:Name="BlankingToggle"
-                                  Grid.Column="2"
-                                  VerticalAlignment="Center"
-                                  FlowDirection="RightToLeft"
-                                  MinWidth="0"
-                                  Toggled="BlankingToggle_Toggled" />
-                </Grid>
-            </Border>
+            <controls:SettingsCard Header="Monitor blanking"
+                                   Description="Blank the selected monitors">
+                <controls:SettingsCard.HeaderIcon>
+                    <ImageIcon Source="ms-appx:///Assets/iconLogo.targetsize-24.png" />
+                </controls:SettingsCard.HeaderIcon>
+                <ToggleSwitch x:Name="BlankingToggle"
+                              OnContent="On"
+                              OffContent="Off"
+                              Toggled="BlankingToggle_Toggled" />
+            </controls:SettingsCard>
 
             <!-- Activation section -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1"
-                    CornerRadius="4"
-                    Padding="16,12">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Icon -->
-                    <FontIcon Grid.Column="0"
-                              Glyph="&#xEDA7;"
-                              FontSize="20"
-                              Margin="0,0,16,0"
-                              VerticalAlignment="Center" />
-
-                    <!-- Text -->
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="Activation shortcut"
-                                   Style="{StaticResource BodyTextBlockStyle}" />
-                        <TextBlock Text="Press this shortcut to toggle blanking"
-                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                    </StackPanel>
-
-                    <!-- Key badges -->
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                        <Border Style="{StaticResource KeyBadgeStyle}">
-                            <TextBlock Text="Win" Style="{StaticResource KeyBadgeTextStyle}" />
-                        </Border>
-                        <Border Style="{StaticResource KeyBadgeStyle}">
-                            <TextBlock Text="Shift" Style="{StaticResource KeyBadgeTextStyle}" />
-                        </Border>
-                        <Border Style="{StaticResource KeyBadgeStyle}">
-                            <TextBlock Text="B" Style="{StaticResource KeyBadgeTextStyle}" />
-                        </Border>
-                    </StackPanel>
-                </Grid>
-            </Border>
+            <controls:SettingsCard Header="Activation shortcut"
+                                   Description="Press this shortcut to toggle blanking">
+                <controls:SettingsCard.HeaderIcon>
+                    <FontIcon Glyph="&#xEDA7;" />
+                </controls:SettingsCard.HeaderIcon>
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <Border Style="{StaticResource KeyBadgeStyle}">
+                        <TextBlock Text="Win" Style="{StaticResource KeyBadgeTextStyle}" />
+                    </Border>
+                    <Border Style="{StaticResource KeyBadgeStyle}">
+                        <TextBlock Text="Shift" Style="{StaticResource KeyBadgeTextStyle}" />
+                    </Border>
+                    <Border Style="{StaticResource KeyBadgeStyle}">
+                        <TextBlock Text="B" Style="{StaticResource KeyBadgeTextStyle}" />
+                    </Border>
+                </StackPanel>
+            </controls:SettingsCard>
         </StackPanel>
 
         <TextBlock Grid.Row="2"
