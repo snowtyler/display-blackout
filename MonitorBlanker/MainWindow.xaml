@@ -59,6 +59,46 @@
                 </Border>
             </Viewbox>
 
+            <!-- Blanking toggle section -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="16,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Icon -->
+                    <Image Grid.Column="0"
+                           Source="ms-appx:///Assets/iconLogo.targetsize-24.png"
+                           Width="20"
+                           Height="20"
+                           Margin="0,0,16,0"
+                           VerticalAlignment="Center" />
+
+                    <!-- Text -->
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="Monitor blanking"
+                                   Style="{StaticResource BodyTextBlockStyle}" />
+                        <TextBlock Text="Blank the selected monitors"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+
+                    <!-- Toggle switch -->
+                    <ToggleSwitch x:Name="BlankingToggle"
+                                  Grid.Column="2"
+                                  VerticalAlignment="Center"
+                                  FlowDirection="RightToLeft"
+                                  MinWidth="0"
+                                  Toggled="BlankingToggle_Toggled" />
+                </Grid>
+            </Border>
+
             <!-- Activation section -->
             <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"

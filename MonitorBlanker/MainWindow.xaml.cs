@@ -24,6 +24,28 @@ public sealed partial class MainWindow : Window
 
         SetDefaultSize();
         LoadMonitors();
+
+        // Initialize toggle state and subscribe to external changes
+        BlankingToggle.IsOn = _blankingService.IsBlanked;
+        _blankingService.BlankingStateChanged += OnBlankingStateChanged;
+    }
+
+    private void OnBlankingStateChanged(object? sender, BlankingStateChangedEventArgs e)
+    {
+        // Update toggle when blanking state changes externally (hotkey, tray icon)
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            BlankingToggle.IsOn = e.IsBlanked;
+        });
+    }
+
+    private void BlankingToggle_Toggled(object sender, RoutedEventArgs e)
+    {
+        // Only toggle if the state actually differs (avoids double-toggle from event handler)
+        if (BlankingToggle.IsOn != _blankingService.IsBlanked)
+        {
+            _blankingService.Toggle();
+        }
     }
 
     private void SetDefaultSize()
