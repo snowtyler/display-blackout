@@ -43,17 +43,16 @@ public sealed partial class App : Application, IDisposable
 
         _trayIcon = new TaskbarIcon
         {
-            ToolTipText = "Monitor Blanker - Click to open settings, double-click to toggle (Win+Shift+B)",
+            ToolTipText = "Monitor Blanker - Click or Win+Shift+B to toggle, double-click for settings",
             IconSource = new GeneratedIconSource
             {
                 Text = "MB",
                 Foreground = new SolidColorBrush(Colors.White),
                 Background = new SolidColorBrush(Colors.DarkSlateGray)
-            }
+            },
+            LeftClickCommand = new RelayCommand(ToggleBlanking),
+            DoubleClickCommand = new RelayCommand(ShowSettings)
         };
-
-        _trayIcon.LeftClickCommand = new RelayCommand(ShowSettings);
-        _trayIcon.DoubleClickCommand = new RelayCommand(ToggleBlanking);
 
         _trayIcon.ForceCreate();
 
