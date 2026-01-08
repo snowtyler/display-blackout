@@ -59,6 +59,7 @@ public sealed partial class BlankOverlay : IDisposable
                 cbSize = (uint)Marshal.SizeOf<WNDCLASSEXW>(),
                 lpfnWndProc = Marshal.GetFunctionPointerForDelegate(s_wndProc),
                 hInstance = GetModuleHandleW(null),
+                hCursor = LoadCursorW(0, 32512), // IDC_ARROW
                 hbrBackground = GetStockObject(4), // BLACK_BRUSH
                 lpszClassName = WindowClassName
             };
@@ -138,4 +139,8 @@ public sealed partial class BlankOverlay : IDisposable
     [LibraryImport("gdi32.dll")]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
     private static partial nint GetStockObject(int i);
+
+    [LibraryImport("user32.dll")]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    private static partial nint LoadCursorW(nint hInstance, int lpCursorName);
 }
