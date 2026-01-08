@@ -22,7 +22,12 @@ public sealed partial class MainWindow : Window
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "icon.ico"));
         AppWindow.TitleBar.PreferredTheme = TitleBarTheme.UseDefaultAppMode;
 
-        SetDefaultSize();
+        // Use WinUIEx for window sizing and persistence
+        var manager = WinUIEx.WindowManager.Get(this);
+        manager.PersistenceId = "MainWindow";
+        manager.Width = 1004;
+        manager.Height = 527;
+
         LoadMonitors();
 
         // Initialize toggle state and subscribe to external changes
@@ -46,22 +51,6 @@ public sealed partial class MainWindow : Window
         {
             _blankingService.Toggle();
         }
-    }
-
-    private void SetDefaultSize()
-    {
-        const int preferredWidth = 1600;
-        const int preferredHeight = 1080;
-
-        // Get the work area of the display where this window will appear
-        var displayArea = DisplayArea.GetFromWindowId(AppWindow.Id, DisplayAreaFallback.Primary);
-        var workArea = displayArea.WorkArea;
-
-        // Use preferred size, but don't exceed available space
-        int width = Math.Min(preferredWidth, workArea.Width);
-        int height = Math.Min(preferredHeight, workArea.Height);
-
-        AppWindow.Resize(new SizeInt32(width, height));
     }
 
     private void LoadMonitors()
