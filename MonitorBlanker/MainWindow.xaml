@@ -13,108 +13,100 @@
         <MicaBackdrop />
     </Window.SystemBackdrop>
 
-    <Grid Padding="30">
-        <Grid MaxWidth="1500" HorizontalAlignment="Center">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+    <Grid Padding="30" MaxWidth="1500" HorizontalAlignment="Center">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
 
-            <TextBlock Grid.Row="0"
-                       Text="Click monitors to toggle blanking. Dark monitors will be blanked."
-                       Style="{StaticResource BodyTextBlockStyle}"
-                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+        <TextBlock Grid.Row="0"
+                   Text="Click monitors to toggle blanking. Dark monitors will be blanked."
+                   Style="{StaticResource BodyTextBlockStyle}"
+                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
 
-            <StackPanel Grid.Row="1" Spacing="16" Margin="0,24,0,0">
-                <!-- Visual monitor layout - scales down with window -->
-                <Viewbox x:Name="MonitorViewbox"
-                         Stretch="Uniform"
-                         HorizontalAlignment="Left"
-                         StretchDirection="DownOnly">
-                    <Border Background="{StaticResource MonitorPickerContainerBackgroundBrush}"
-                            BorderBrush="{StaticResource MonitorPickerContainerBorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            Padding="44">
-                        <ItemsControl x:Name="MonitorItemsControl" ItemsSource="{x:Bind Monitors}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <Grid />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="local:MonitorItem">
-                                    <ToggleButton Style="{StaticResource MonitorToggleButtonStyle}"
-                                                  Width="{x:Bind ScaledWidth}"
-                                                  Height="{x:Bind ScaledHeight}"
-                                                  IsChecked="{x:Bind IsSelected, Mode=TwoWay}"
-                                                  AutomationProperties.Name="{x:Bind AccessibleName}"
-                                                  HorizontalAlignment="Left"
-                                                  VerticalAlignment="Top"
-                                                  Margin="{x:Bind PositionMargin}"
-                                                  Click="MonitorToggleButton_Click" />
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </Border>
-                </Viewbox>
-
-                <!-- Activation section -->
-                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+        <StackPanel Grid.Row="1" Spacing="16" Margin="0,24,0,0">
+            <!-- Visual monitor layout - scales down with window -->
+            <Viewbox x:Name="MonitorViewbox"
+                     Stretch="Uniform"
+                     HorizontalAlignment="Left"
+                     StretchDirection="DownOnly">
+                <Border Background="{StaticResource MonitorPickerContainerBackgroundBrush}"
+                        BorderBrush="{StaticResource MonitorPickerContainerBorderBrush}"
                         BorderThickness="1"
-                        CornerRadius="4"
-                        Padding="16,12">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Icon -->
-                        <FontIcon Grid.Column="0"
-                                  Glyph="&#xEDA7;"
-                                  FontSize="20"
-                                  Margin="0,0,16,0"
-                                  VerticalAlignment="Center" />
-
-                        <!-- Text -->
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock Text="Activation shortcut"
-                                       Style="{StaticResource BodyStrongTextBlockStyle}" />
-                            <TextBlock Text="Press this shortcut to toggle blanking"
-                                       Style="{StaticResource CaptionTextBlockStyle}"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                        </StackPanel>
-
-                        <!-- Key badges -->
-                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                            <Border Background="{ThemeResource AccentButtonBackground}"
-                                    CornerRadius="4"
-                                    Padding="8,6">
-                                <TextBlock Text="Win" FontSize="12" Foreground="{ThemeResource AccentButtonForeground}" FontWeight="SemiBold" />
-                            </Border>
-                            <Border Background="{ThemeResource AccentButtonBackground}"
-                                    CornerRadius="4"
-                                    Padding="8,6">
-                                <TextBlock Text="Shift" FontSize="12" Foreground="{ThemeResource AccentButtonForeground}" FontWeight="SemiBold" />
-                            </Border>
-                            <Border Background="{ThemeResource AccentButtonBackground}"
-                                    CornerRadius="4"
-                                    Padding="8,6">
-                                <TextBlock Text="B" FontSize="12" Foreground="{ThemeResource AccentButtonForeground}" FontWeight="SemiBold" />
-                            </Border>
-                        </StackPanel>
-                    </Grid>
+                        CornerRadius="8"
+                        Padding="44">
+                    <ItemsControl x:Name="MonitorItemsControl" ItemsSource="{x:Bind Monitors}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Grid />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="local:MonitorItem">
+                                <ToggleButton Style="{StaticResource MonitorToggleButtonStyle}"
+                                              Width="{x:Bind ScaledWidth}"
+                                              Height="{x:Bind ScaledHeight}"
+                                              IsChecked="{x:Bind IsSelected, Mode=TwoWay}"
+                                              AutomationProperties.Name="{x:Bind AccessibleName}"
+                                              HorizontalAlignment="Left"
+                                              VerticalAlignment="Top"
+                                              Margin="{x:Bind PositionMargin}"
+                                              Click="MonitorToggleButton_Click" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </Border>
-            </StackPanel>
+            </Viewbox>
 
-            <TextBlock Grid.Row="2"
-                       Text="Double-click tray icon or press hotkey to toggle blanking"
-                       Style="{StaticResource CaptionTextBlockStyle}"
-                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-        </Grid>
+            <!-- Activation section -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="16,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Icon -->
+                    <FontIcon Grid.Column="0"
+                              Glyph="&#xEDA7;"
+                              FontSize="20"
+                              Margin="0,0,16,0"
+                              VerticalAlignment="Center" />
+
+                    <!-- Text -->
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="Activation shortcut"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <TextBlock Text="Press this shortcut to toggle blanking"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+
+                    <!-- Key badges -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <Border Style="{StaticResource KeyBadgeStyle}">
+                            <TextBlock Text="Win" Style="{StaticResource KeyBadgeTextStyle}" />
+                        </Border>
+                        <Border Style="{StaticResource KeyBadgeStyle}">
+                            <TextBlock Text="Shift" Style="{StaticResource KeyBadgeTextStyle}" />
+                        </Border>
+                        <Border Style="{StaticResource KeyBadgeStyle}">
+                            <TextBlock Text="B" Style="{StaticResource KeyBadgeTextStyle}" />
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </StackPanel>
+
+        <TextBlock Grid.Row="2"
+                   Text="Double-click tray icon or press hotkey to toggle blanking"
+                   Style="{StaticResource CaptionTextBlockStyle}"
+                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
     </Grid>
 </Window>

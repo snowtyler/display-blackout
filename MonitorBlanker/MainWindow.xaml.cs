@@ -134,8 +134,6 @@ public sealed partial class MainWindow : Window
 
 public sealed partial class MonitorItem : INotifyPropertyChanged
 {
-    private bool _isSelected;
-
     public bool IsPrimary { get; set; }
     public ulong DisplayId { get; set; }
 
@@ -157,12 +155,12 @@ public sealed partial class MonitorItem : INotifyPropertyChanged
 
     public bool IsSelected
     {
-        get => _isSelected;
+        get;
         set
         {
-            if (_isSelected != value)
+            if (field != value)
             {
-                _isSelected = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
