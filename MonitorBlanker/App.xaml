@@ -12,7 +12,6 @@
 
             <!-- Monitor Picker Brushes -->
             <SolidColorBrush x:Key="MonitorPickerContainerBackgroundBrush" Color="{ThemeResource SolidBackgroundFillColorSecondary}" />
-            <SolidColorBrush x:Key="MonitorPickerContainerBorderBrush" Color="{ThemeResource SurfaceStrokeColorDefault}" />
             <SolidColorBrush x:Key="MonitorUnselectedBackgroundBrush" Color="{ThemeResource ControlAltFillColorQuarternary}" />
             <SolidColorBrush x:Key="MonitorUnselectedHoverBackgroundBrush" Color="{ThemeResource SubtleFillColorSecondary}" />
             <SolidColorBrush x:Key="MonitorSelectedBackgroundBrush" Color="Black" />

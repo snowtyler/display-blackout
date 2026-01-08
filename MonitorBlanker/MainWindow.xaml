@@ -32,7 +32,7 @@
                      HorizontalAlignment="Left"
                      StretchDirection="DownOnly">
                 <Border Background="{StaticResource MonitorPickerContainerBackgroundBrush}"
-                        BorderBrush="{StaticResource MonitorPickerContainerBorderBrush}"
+                        BorderBrush="{StaticResource CardStrokeColorDefaultBrush}"
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="44">
@@ -82,7 +82,7 @@
                     <!-- Text -->
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="Activation shortcut"
-                                   Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                   Style="{StaticResource BodyTextBlockStyle}" />
                         <TextBlock Text="Press this shortcut to toggle blanking"
                                    Style="{StaticResource CaptionTextBlockStyle}"
                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
