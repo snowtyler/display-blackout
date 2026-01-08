@@ -63,24 +63,20 @@ public sealed partial class MainWindow : Window
             });
         }
 
-        // Calculate bounding box of all monitors
+        // Calculate bounding box and find tallest monitor
         int minX = int.MaxValue, minY = int.MaxValue;
-        int maxX = int.MinValue, maxY = int.MinValue;
+        int maxMonitorHeight = 0;
         foreach (var data in monitorList)
         {
             var bounds = data.Display.OuterBounds;
             minX = Math.Min(minX, bounds.X);
             minY = Math.Min(minY, bounds.Y);
-            maxX = Math.Max(maxX, bounds.X + bounds.Width);
-            maxY = Math.Max(maxY, bounds.Y + bounds.Height);
+            maxMonitorHeight = Math.Max(maxMonitorHeight, bounds.Height);
         }
 
-        double totalWidth = maxX - minX;
-        double totalHeight = maxY - minY;
-
-        // Scale to a reasonable visual size (Viewbox will scale further if needed)
-        const double targetSize = 800;
-        double scale = targetSize / Math.Max(totalWidth, totalHeight);
+        // Scale so tallest monitor is 160 DIPs (Viewbox will scale down further if needed)
+        const double targetMonitorHeight = 160;
+        double scale = targetMonitorHeight / maxMonitorHeight;
 
         // Sort by X then Y for consistent ordering (accessibility)
         monitorList.Sort((a, b) =>
