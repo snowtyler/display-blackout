@@ -1,8 +1,9 @@
 using Microsoft.UI;
-using WinUIEx;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using MonitorBlanker.Services;
+using WinUIEx;
 
 namespace MonitorBlanker;
 
@@ -45,6 +46,7 @@ public sealed partial class App : Application, IDisposable
         _trayIcon = new TrayIcon(1, iconPath, "Monitor Blanker - Click to open settings, double-click to toggle (Win+Shift+B)");
         _trayIcon.Selected += (_, _) => ShowSettings();
         _trayIcon.LeftDoubleClick += (_, _) => ToggleBlanking();
+        _trayIcon.ContextMenu += OnTrayContextMenu;
         _trayIcon.IsVisible = true;
 
         if (openSettings)
@@ -79,6 +81,26 @@ public sealed partial class App : Application, IDisposable
     private void ToggleBlanking()
     {
         _blankingService?.Toggle();
+    }
+
+    private void OnTrayContextMenu(TrayIcon sender, TrayIconEventArgs e)
+    {
+        var settingsItem = new MenuFlyoutItem { Text = "Settings" };
+        settingsItem.Click += (_, _) => ShowSettings();
+
+        var toggleItem = new MenuFlyoutItem { Text = "Toggle" };
+        toggleItem.Click += (_, _) => ToggleBlanking();
+
+        var exitItem = new MenuFlyoutItem { Text = "Exit" };
+        exitItem.Click += (_, _) => Environment.Exit(0);
+
+        var flyout = new MenuFlyout();
+        flyout.Items.Add(settingsItem);
+        flyout.Items.Add(toggleItem);
+        flyout.Items.Add(new MenuFlyoutSeparator());
+        flyout.Items.Add(exitItem);
+
+        e.Flyout = flyout;
     }
 
     public void Dispose()
