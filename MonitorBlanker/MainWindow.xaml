@@ -14,96 +14,83 @@
         <MicaBackdrop />
     </Window.SystemBackdrop>
 
-    <Grid Padding="30" MaxWidth="1500" HorizontalAlignment="Center">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-
-        <TextBlock Grid.Row="0"
-                   Text="Click monitors to toggle blanking. Dark monitors will be blanked."
+    <StackPanel Padding="30" MaxWidth="1500" HorizontalAlignment="Center" Spacing="16">
+        <TextBlock Text="Click monitors to toggle blanking. Dark monitors will be blanked."
                    Style="{StaticResource BodyTextBlockStyle}"
-                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                   Margin="0,0,0,8" />
 
-        <StackPanel Grid.Row="1" Spacing="16" Margin="0,24,0,0">
-            <!-- Visual monitor layout - scales down with window -->
-            <Viewbox x:Name="MonitorViewbox"
-                     Stretch="Uniform"
-                     HorizontalAlignment="Left"
-                     StretchDirection="DownOnly">
-                <Border Background="{StaticResource MonitorPickerContainerBackgroundBrush}"
-                        BorderBrush="{StaticResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="1"
-                        CornerRadius="8"
-                        Padding="44">
-                    <ItemsControl x:Name="MonitorItemsControl" ItemsSource="{x:Bind Monitors}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <Grid />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="local:MonitorItem">
-                                <ToggleButton Style="{StaticResource MonitorToggleButtonStyle}"
-                                              Width="{x:Bind ScaledWidth}"
-                                              Height="{x:Bind ScaledHeight}"
-                                              IsChecked="{x:Bind IsSelected, Mode=TwoWay}"
-                                              AutomationProperties.Name="{x:Bind AccessibleName}"
-                                              HorizontalAlignment="Left"
-                                              VerticalAlignment="Top"
-                                              Margin="{x:Bind PositionMargin}"
-                                              Click="MonitorToggleButton_Click" />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </Border>
-            </Viewbox>
+        <!-- Visual monitor layout - scales down with window -->
+        <Viewbox x:Name="MonitorViewbox"
+                 Stretch="Uniform"
+                 HorizontalAlignment="Left"
+                 StretchDirection="DownOnly">
+            <Border Background="{StaticResource MonitorPickerContainerBackgroundBrush}"
+                    BorderBrush="{StaticResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="44">
+                <ItemsControl x:Name="MonitorItemsControl" ItemsSource="{x:Bind Monitors}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Grid />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="local:MonitorItem">
+                            <ToggleButton Style="{StaticResource MonitorToggleButtonStyle}"
+                                          Width="{x:Bind ScaledWidth}"
+                                          Height="{x:Bind ScaledHeight}"
+                                          IsChecked="{x:Bind IsSelected, Mode=TwoWay}"
+                                          AutomationProperties.Name="{x:Bind AccessibleName}"
+                                          HorizontalAlignment="Left"
+                                          VerticalAlignment="Top"
+                                          Margin="{x:Bind PositionMargin}"
+                                          Click="MonitorToggleButton_Click" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+        </Viewbox>
 
-            <!-- Blanking toggle section -->
-            <controls:SettingsCard Header="Monitor blanking"
-                                   Description="Blank the selected monitors">
-                <controls:SettingsCard.HeaderIcon>
-                    <ImageIcon Source="ms-appx:///Assets/iconLogo.targetsize-24.png" />
-                </controls:SettingsCard.HeaderIcon>
-                <ToggleSwitch x:Name="BlankingToggle"
-                              OnContent="On"
-                              OffContent="Off"
-                              Toggled="BlankingToggle_Toggled" />
-            </controls:SettingsCard>
+        <!-- Blanking toggle section -->
+        <controls:SettingsCard Header="Monitor blanking"
+                               Description="Blank the selected monitors">
+            <controls:SettingsCard.HeaderIcon>
+                <ImageIcon Source="ms-appx:///Assets/iconLogo.targetsize-24.png" />
+            </controls:SettingsCard.HeaderIcon>
+            <ToggleSwitch x:Name="BlankingToggle"
+                          OnContent="On"
+                          OffContent="Off"
+                          Toggled="BlankingToggle_Toggled" />
+        </controls:SettingsCard>
 
-            <!-- Activation section -->
-            <controls:SettingsCard Header="Activation shortcut"
-                                   Description="Press this shortcut to toggle blanking">
-                <controls:SettingsCard.HeaderIcon>
-                    <FontIcon Glyph="&#xEDA7;" />
-                </controls:SettingsCard.HeaderIcon>
-                <StackPanel Orientation="Horizontal" Spacing="4">
-                    <Grid Style="{StaticResource KeyBadgeStyle}">
-                        <Grid Style="{StaticResource KeyBadgeContentStyle}">
-                            <Viewbox>
-                                <PathIcon Data="M9 20H0V11H9V20ZM20 20H11V11H20V20ZM9 9H0V0H9V9ZM20 9H11V0H20V9Z"
-                                          Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
-                            </Viewbox>
-                        </Grid>
+        <!-- Activation section -->
+        <controls:SettingsCard Header="Activation shortcut"
+                               Description="Press this shortcut to toggle blanking">
+            <controls:SettingsCard.HeaderIcon>
+                <FontIcon Glyph="&#xEDA7;" />
+            </controls:SettingsCard.HeaderIcon>
+            <StackPanel Orientation="Horizontal" Spacing="4">
+                <Grid Style="{StaticResource KeyBadgeStyle}">
+                    <Grid Style="{StaticResource KeyBadgeContentStyle}">
+                        <Viewbox>
+                            <PathIcon Data="M9 20H0V11H9V20ZM20 20H11V11H20V20ZM9 9H0V0H9V9ZM20 9H11V0H20V9Z"
+                                      Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+                        </Viewbox>
                     </Grid>
-                    <Grid Style="{StaticResource KeyBadgeStyle}">
-                        <Grid Style="{StaticResource KeyBadgeContentStyle}">
-                            <TextBlock Text="Shift" Style="{StaticResource KeyBadgeTextStyle}" />
-                        </Grid>
+                </Grid>
+                <Grid Style="{StaticResource KeyBadgeStyle}">
+                    <Grid Style="{StaticResource KeyBadgeContentStyle}">
+                        <TextBlock Text="Shift" Style="{StaticResource KeyBadgeTextStyle}" />
                     </Grid>
-                    <Grid Style="{StaticResource KeyBadgeStyle}">
-                        <Grid Style="{StaticResource KeyBadgeContentStyle}">
-                            <TextBlock Text="B" Style="{StaticResource KeyBadgeTextStyle}" />
-                        </Grid>
+                </Grid>
+                <Grid Style="{StaticResource KeyBadgeStyle}">
+                    <Grid Style="{StaticResource KeyBadgeContentStyle}">
+                        <TextBlock Text="B" Style="{StaticResource KeyBadgeTextStyle}" />
                     </Grid>
-                </StackPanel>
-            </controls:SettingsCard>
-        </StackPanel>
-
-        <TextBlock Grid.Row="2"
-                   Text="Double-click tray icon or press hotkey to toggle blanking"
-                   Style="{StaticResource CaptionTextBlockStyle}"
-                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-    </Grid>
+                </Grid>
+            </StackPanel>
+        </controls:SettingsCard>
+    </StackPanel>
 </Window>
