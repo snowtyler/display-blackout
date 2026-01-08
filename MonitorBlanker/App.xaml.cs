@@ -1,5 +1,5 @@
-using H.NotifyIcon;
 using Microsoft.UI;
+using WinUIEx;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using MonitorBlanker.Services;
@@ -8,7 +8,7 @@ namespace MonitorBlanker;
 
 public sealed partial class App : Application, IDisposable
 {
-    private TaskbarIcon? _trayIcon;
+    private TrayIcon? _trayIcon;
     private MainWindow? _settingsWindow;
     private Window? _hiddenWindow;
     private BlankingService? _blankingService;
@@ -42,15 +42,10 @@ public sealed partial class App : Application, IDisposable
         // _gameModeService.StartMonitoring();
 
         var iconPath = Path.Combine(AppContext.BaseDirectory, "icon.ico");
-        _trayIcon = new TaskbarIcon
-        {
-            ToolTipText = "Monitor Blanker - Click to open settings, double-click to toggle (Win+Shift+B)",
-            Icon = new System.Drawing.Icon(iconPath),
-            LeftClickCommand = new RelayCommand(ShowSettings),
-            DoubleClickCommand = new RelayCommand(ToggleBlanking)
-        };
-
-        _trayIcon.ForceCreate();
+        _trayIcon = new TrayIcon(1, iconPath, "Monitor Blanker - Click to open settings, double-click to toggle (Win+Shift+B)");
+        _trayIcon.Selected += (_, _) => ShowSettings();
+        _trayIcon.LeftDoubleClick += (_, _) => ToggleBlanking();
+        _trayIcon.IsVisible = true;
 
         if (openSettings)
         {
@@ -97,16 +92,4 @@ public sealed partial class App : Application, IDisposable
         _trayIcon?.Dispose();
         GC.SuppressFinalize(this);
     }
-}
-
-internal sealed partial class RelayCommand(Action execute) : System.Windows.Input.ICommand
-{
-    public event EventHandler? CanExecuteChanged
-    {
-        add { }
-        remove { }
-    }
-
-    public bool CanExecute(object? parameter) => true;
-    public void Execute(object? parameter) => execute();
 }
