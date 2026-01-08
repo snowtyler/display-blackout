@@ -17,6 +17,77 @@
             <SolidColorBrush x:Key="MonitorUnselectedHoverBackgroundBrush" Color="{ThemeResource SubtleFillColorSecondary}" />
             <SolidColorBrush x:Key="MonitorSelectedBackgroundBrush" Color="Black" />
             <SolidColorBrush x:Key="MonitorSelectedHoverBackgroundBrush" Color="#333333" />
+
+            <!-- Monitor ToggleButton Style -->
+            <Style x:Key="MonitorToggleButtonStyle" TargetType="ToggleButton">
+                <Setter Property="CornerRadius" Value="4" />
+                <Setter Property="MinWidth" Value="0" />
+                <Setter Property="MinHeight" Value="0" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ToggleButton">
+                            <Border x:Name="RootBorder"
+                                    CornerRadius="{TemplateBinding CornerRadius}"
+                                    Background="{StaticResource MonitorUnselectedBackgroundBrush}">
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal" />
+                                        <VisualState x:Name="PointerOver">
+                                            <VisualState.Setters>
+                                                <Setter Target="RootBorder.Background" Value="{StaticResource MonitorUnselectedHoverBackgroundBrush}" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="Pressed">
+                                            <VisualState.Setters>
+                                                <Setter Target="RootBorder.Background" Value="{StaticResource MonitorUnselectedHoverBackgroundBrush}" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="Disabled">
+                                            <VisualState.Setters>
+                                                <Setter Target="RootBorder.Background" Value="{StaticResource MonitorUnselectedBackgroundBrush}" />
+                                                <Setter Target="RootBorder.Opacity" Value="0.5" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="Checked">
+                                            <VisualState.Setters>
+                                                <Setter Target="RootBorder.Background" Value="{StaticResource MonitorSelectedBackgroundBrush}" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="CheckedPointerOver">
+                                            <VisualState.Setters>
+                                                <Setter Target="RootBorder.Background" Value="{StaticResource MonitorSelectedHoverBackgroundBrush}" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="CheckedPressed">
+                                            <VisualState.Setters>
+                                                <Setter Target="RootBorder.Background" Value="{StaticResource MonitorSelectedHoverBackgroundBrush}" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="CheckedDisabled">
+                                            <VisualState.Setters>
+                                                <Setter Target="RootBorder.Background" Value="{StaticResource MonitorSelectedBackgroundBrush}" />
+                                                <Setter Target="RootBorder.Opacity" Value="0.5" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                    <VisualStateGroup x:Name="FocusStates">
+                                        <VisualState x:Name="Focused">
+                                            <VisualState.Setters>
+                                                <Setter Target="RootBorder.BorderBrush" Value="{ThemeResource FocusVisualWhiteStrokeOuter}" />
+                                                <Setter Target="RootBorder.BorderThickness" Value="2" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="Unfocused" />
+                                        <VisualState x:Name="PointerFocused" />
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

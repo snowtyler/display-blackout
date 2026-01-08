@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
 using MonitorBlanker.Services;
 using Windows.Graphics;
 
@@ -50,74 +49,58 @@ public sealed partial class MainWindow : Window
         var primaryId = DisplayArea.Primary?.DisplayId.Value;
         var selectedIds = _blankingService.SelectedMonitorIds;
 
-        // Reference values (in DIPs, matching Windows Display Settings at 150% DPI)
-        const double containerWidth = 998;
-        const double baseMonitorHeight = 162;
-        const double verticalPadding = 44;
-        const double monitorGap = 2;
-        const double minPaddingPercent = 0.075;
-
-        // Build monitor list with visual dimensions based on aspect ratio
-        var monitorList = new List<MonitorData>();
-
+        // Build monitor list from display bounds
         // Use indexed loop - foreach throws InvalidCastException due to CsWinRT bug:
         // https://github.com/microsoft/WindowsAppSDK/issues/3484
+        var monitorList = new List<MonitorData>();
         for (int i = 0; i < displays.Count; i++)
         {
             var display = displays[i];
-            var bounds = display.OuterBounds;
-            double aspectRatio = (double)bounds.Width / bounds.Height;
-
             monitorList.Add(new MonitorData
             {
                 Display = display,
-                AspectRatio = aspectRatio,
-                BaseWidth = baseMonitorHeight * aspectRatio,
-                BaseHeight = baseMonitorHeight,
                 IsPrimary = display.DisplayId.Value == primaryId
             });
         }
 
-        // Sort by physical X position (left to right arrangement)
-        monitorList.Sort((a, b) => a.Display.OuterBounds.X.CompareTo(b.Display.OuterBounds.X));
-
-        // Calculate total content width at base scale
-        double totalBaseWidth = 0;
-        for (int i = 0; i < monitorList.Count; i++)
+        // Calculate bounding box of all monitors
+        int minX = int.MaxValue, minY = int.MaxValue;
+        int maxX = int.MinValue, maxY = int.MinValue;
+        foreach (var data in monitorList)
         {
-            totalBaseWidth += monitorList[i].BaseWidth;
-            if (i < monitorList.Count - 1)
-            {
-                totalBaseWidth += monitorGap;
-            }
+            var bounds = data.Display.OuterBounds;
+            minX = Math.Min(minX, bounds.X);
+            minY = Math.Min(minY, bounds.Y);
+            maxX = Math.Max(maxX, bounds.X + bounds.Width);
+            maxY = Math.Max(maxY, bounds.Y + bounds.Height);
         }
 
-        // Calculate minimum padding and available width
-        double minPadding = containerWidth * minPaddingPercent;
-        double availableWidth = containerWidth - (2 * minPadding);
+        double totalWidth = maxX - minX;
+        double totalHeight = maxY - minY;
 
-        // Determine scale factor
-        double scale = 1.0;
-        if (totalBaseWidth > availableWidth)
+        // Scale to a reasonable visual size (Viewbox will scale further if needed)
+        const double targetSize = 800;
+        double scale = targetSize / Math.Max(totalWidth, totalHeight);
+
+        // Sort by X then Y for consistent ordering (accessibility)
+        monitorList.Sort((a, b) =>
         {
-            scale = availableWidth / totalBaseWidth;
-        }
-
-        // Calculate actual layout dimensions
-        double layoutWidth = totalBaseWidth * scale;
-        double layoutHeight = baseMonitorHeight * scale;
-
-        // Calculate horizontal padding (center the content)
-        double horizontalPadding = (containerWidth - layoutWidth) / 2;
+            int xCompare = a.Display.OuterBounds.X.CompareTo(b.Display.OuterBounds.X);
+            return xCompare != 0 ? xCompare : a.Display.OuterBounds.Y.CompareTo(b.Display.OuterBounds.Y);
+        });
 
         // Position and create monitor items
-        double currentX = 0;
+        int totalMonitors = monitorList.Count;
         for (int i = 0; i < monitorList.Count; i++)
         {
             var data = monitorList[i];
+            var bounds = data.Display.OuterBounds;
 
-            double width = data.BaseWidth * scale;
-            double height = data.BaseHeight * scale;
+            // Scale position and size relative to bounding box origin
+            double scaledX = (bounds.X - minX) * scale;
+            double scaledY = (bounds.Y - minY) * scale;
+            double scaledWidth = bounds.Width * scale;
+            double scaledHeight = bounds.Height * scale;
 
             // If no selection saved, default to all non-primary
             bool isSelected = selectedIds != null
@@ -129,89 +112,20 @@ public sealed partial class MainWindow : Window
                 IsPrimary = data.IsPrimary,
                 DisplayId = data.Display.DisplayId.Value,
                 IsSelected = isSelected,
-                ScaledX = currentX,
-                ScaledY = 0,
-                ScaledWidth = width,
-                ScaledHeight = height,
-                Bounds = data.Display.OuterBounds
+                ScaledX = scaledX,
+                ScaledY = scaledY,
+                ScaledWidth = scaledWidth,
+                ScaledHeight = scaledHeight,
+                Bounds = bounds,
+                MonitorIndex = i + 1,
+                TotalMonitors = totalMonitors
             });
-
-            currentX += width;
-            if (i < monitorList.Count - 1)
-            {
-                currentX += monitorGap * scale;
-            }
-        }
-
-        // Set canvas size and margins
-        MonitorCanvas.Width = layoutWidth;
-        MonitorCanvas.Height = layoutHeight;
-        MonitorCanvas.Margin = new Thickness(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
-
-        // Create visual elements
-        foreach (var monitor in Monitors)
-        {
-            var border = CreateMonitorVisual(monitor);
-            Canvas.SetLeft(border, monitor.ScaledX);
-            Canvas.SetTop(border, monitor.ScaledY);
-            MonitorCanvas.Children.Add(border);
         }
     }
 
-    private Border CreateMonitorVisual(MonitorItem monitor)
+    private void MonitorToggleButton_Click(object sender, RoutedEventArgs e)
     {
-        var border = new Border
-        {
-            Width = monitor.ScaledWidth,
-            Height = monitor.ScaledHeight,
-            CornerRadius = new CornerRadius(4),
-            Tag = monitor
-        };
-
-        bool isHovered = false;
-
-        UpdateMonitorVisualState(border, monitor, isHovered);
-
-        border.PointerEntered += (s, e) =>
-        {
-            isHovered = true;
-            UpdateMonitorVisualState(border, monitor, isHovered);
-        };
-
-        border.PointerExited += (s, e) =>
-        {
-            isHovered = false;
-            UpdateMonitorVisualState(border, monitor, isHovered);
-        };
-
-        border.PointerPressed += (s, e) =>
-        {
-            monitor.IsSelected = !monitor.IsSelected;
-            UpdateMonitorVisualState(border, monitor, isHovered);
-            UpdateBlankingServiceSelection();
-        };
-
-        monitor.PropertyChanged += (s, e) =>
-        {
-            if (e.PropertyName == nameof(MonitorItem.IsSelected))
-            {
-                UpdateMonitorVisualState(border, monitor, isHovered);
-            }
-        };
-
-        return border;
-    }
-
-    private static void UpdateMonitorVisualState(Border border, MonitorItem monitor, bool isHovered)
-    {
-        var resourceKey = (monitor.IsSelected, isHovered) switch
-        {
-            (true, true) => "MonitorSelectedHoverBackgroundBrush",
-            (true, false) => "MonitorSelectedBackgroundBrush",
-            (false, true) => "MonitorUnselectedHoverBackgroundBrush",
-            (false, false) => "MonitorUnselectedBackgroundBrush"
-        };
-        border.Background = (Brush)Application.Current.Resources[resourceKey];
+        UpdateBlankingServiceSelection();
     }
 
     private void UpdateBlankingServiceSelection()
@@ -230,9 +144,6 @@ public sealed partial class MainWindow : Window
     private sealed class MonitorData
     {
         public required DisplayArea Display { get; init; }
-        public double AspectRatio { get; init; }
-        public double BaseWidth { get; init; }
-        public double BaseHeight { get; init; }
         public bool IsPrimary { get; init; }
     }
 }
@@ -249,6 +160,16 @@ public sealed partial class MonitorItem : INotifyPropertyChanged
     public double ScaledWidth { get; set; }
     public double ScaledHeight { get; set; }
     public RectInt32 Bounds { get; set; }
+
+    // Accessibility properties
+    public int MonitorIndex { get; set; }
+    public int TotalMonitors { get; set; }
+    public string AccessibleName => IsPrimary
+        ? $"Monitor {MonitorIndex} of {TotalMonitors}, primary"
+        : $"Monitor {MonitorIndex} of {TotalMonitors}";
+
+    // Position as margin for Grid-based layout
+    public Thickness PositionMargin => new(ScaledX, ScaledY, 0, 0);
 
     public bool IsSelected
     {

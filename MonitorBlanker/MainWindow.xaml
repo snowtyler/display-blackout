@@ -35,8 +35,28 @@
                     <Border Background="{StaticResource MonitorPickerContainerBackgroundBrush}"
                             BorderBrush="{StaticResource MonitorPickerContainerBorderBrush}"
                             BorderThickness="1"
-                            CornerRadius="8">
-                        <Canvas x:Name="MonitorCanvas" />
+                            CornerRadius="8"
+                            Padding="44">
+                        <ItemsControl x:Name="MonitorItemsControl" ItemsSource="{x:Bind Monitors}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <Grid />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="local:MonitorItem">
+                                    <ToggleButton Style="{StaticResource MonitorToggleButtonStyle}"
+                                                  Width="{x:Bind ScaledWidth}"
+                                                  Height="{x:Bind ScaledHeight}"
+                                                  IsChecked="{x:Bind IsSelected, Mode=TwoWay}"
+                                                  AutomationProperties.Name="{x:Bind AccessibleName}"
+                                                  HorizontalAlignment="Left"
+                                                  VerticalAlignment="Top"
+                                                  Margin="{x:Bind PositionMargin}"
+                                                  Click="MonitorToggleButton_Click" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </Border>
                 </Viewbox>
 
