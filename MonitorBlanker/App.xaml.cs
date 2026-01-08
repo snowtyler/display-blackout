@@ -23,6 +23,10 @@ public sealed partial class App : Application, IDisposable
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
+        bool openSettings = Environment.GetCommandLineArgs()
+            .Skip(1) // Skip executable path
+            .Any(arg => arg.Equals("/OpenSettings", StringComparison.OrdinalIgnoreCase));
+
         _blankingService = new BlankingService();
 
         // Create a hidden window for hotkey messages
@@ -52,6 +56,11 @@ public sealed partial class App : Application, IDisposable
         _trayIcon.DoubleClickCommand = new RelayCommand(ToggleBlanking);
 
         _trayIcon.ForceCreate();
+
+        if (openSettings)
+        {
+            ShowSettings();
+        }
     }
 
     private void OnGameModeChanged(object? sender, GameModeChangedEventArgs e)

@@ -7,6 +7,11 @@
     "MonitorBlanker (Unpackaged)": {
       "commandName": "Project",
       "nativeDebugging": true
+    },
+    "/OpenSettings": {
+      "commandName": "MsixPackage",
+      "commandLineArgs": "/OpenSettings",
+      "nativeDebugging": true
     }
   }
 }
