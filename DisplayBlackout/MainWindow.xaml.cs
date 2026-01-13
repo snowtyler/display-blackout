@@ -1,10 +1,9 @@
+using DisplayBlackout.Services;
+using Microsoft.UI.Windowing;
+using Microsoft.UI.Xaml;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Microsoft.UI.Windowing;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using DisplayBlackout.Services;
 using Windows.ApplicationModel;
 using Windows.Graphics;
 

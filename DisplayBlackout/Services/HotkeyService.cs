@@ -1,6 +1,6 @@
+using Microsoft.UI.Xaml;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
-using Microsoft.UI.Xaml;
 using WinRT.Interop;
 
 namespace DisplayBlackout.Services;

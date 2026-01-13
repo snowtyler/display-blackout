@@ -1,9 +1,7 @@
-using Microsoft.UI;
+using DisplayBlackout.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.Windows.ApplicationModel.Resources;
-using DisplayBlackout.Services;
 using WinUIEx;
 
 namespace DisplayBlackout;
