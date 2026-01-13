@@ -1,8 +1,8 @@
-# Monitor Blanker - Design Specification
+# Display Blackout - Design Specification
 
 ## Overview
 
-**Monitor Blanker** is a Windows 11 system tray utility that blanks (displays opaque black over) selected monitors on demand. Common use cases include reducing distractions while gaming, focusing on a single display, or dimming secondary monitors during video calls.
+**Display Blackout** is a Windows 11 system tray utility that blacks out selected displays on demand. Common use cases include reducing distractions while gaming, focusing on a single display, or dimming secondary monitors during video calls.
 
 ### Goals
 
@@ -45,55 +45,55 @@ WinUI 3 self-contained apps can be 100-200MB. With AOT and IL trimming (supporte
 
 ### v1.0 - Core Features
 
-#### Blanking Behavior
+#### Blackout Behavior
 
-- **Blank overlay**: Opaque black window covering the entire monitor
+- **Blackout overlay**: Opaque black window covering the entire display
   - `WS_EX_TOPMOST` (always on top)
   - `WS_POPUP` (no title bar or borders)
   - `WS_EX_TOOLWINDOW` (hidden from taskbar/Alt+Tab)
   - `WS_EX_NOACTIVATE` (doesn't steal focus)
   - Non-interactive (clicks pass through or are ignored)
-- **Default selection**: All monitors except primary
-- **Per-monitor control**: User selects which monitors to blank in settings
+- **Default selection**: All displays except primary
+- **Per-display control**: User selects which displays to black out in settings
 
 #### Triggers
 
 | Trigger | Behavior |
 |---------|----------|
-| **Hotkey** | Default: `Win+Shift+B` (configurable). Toggles blank on/off |
-| **System tray double-click** | Toggles blank on/off |
+| **Hotkey** | Default: `Win+Shift+B` (configurable). Toggles blackout on/off |
+| **System tray double-click** | Toggles blackout on/off |
 | **System tray single-click** | Opens settings window |
 
 #### Settings Window
 
-- **Monitor selector**: Visual layout showing monitor arrangement (like Windows Display Settings). Click monitors to toggle blanking for each
+- **Display selector**: Visual layout showing display arrangement (like Windows Display Settings). Click displays to toggle blackout for each
 - **Hotkey configuration**: Record a new hotkey combination
 - **Start with Windows**: Toggle auto-start (default: off)
 
 #### System Tray Icon
 
 - **Visual states**:
-  - Unblanked: Monitor outline (empty)
-  - Blanked: Filled black monitor
+  - Normal: Display outline (empty)
+  - Blacked out: Filled black display
 - **Interactions**:
   - Single-click: Open settings
-  - Double-click: Toggle blank
+  - Double-click: Toggle blackout
   - Right-click: Context menu (optional, see below)
 
 ### v1.0 - Optional Enhancements
 
 These may be included in v1.0 if time permits:
 
-- **Context menu**: Right-click tray icon for quick actions (Blank All, Settings, Exit)
-- **Per-monitor quick toggle**: Context menu lists each monitor for quick individual control
-- **Notification**: Toast notification when blanking/unblanking (can be disabled)
+- **Context menu**: Right-click tray icon for quick actions (Black Out All, Settings, Exit)
+- **Per-display quick toggle**: Context menu lists each display for quick individual control
+- **Notification**: Toast notification when blacking out/restoring (can be disabled)
 
 ### v2.0 - Future Features
 
-- **Process/EXE detection**: Whitelist of executables that trigger auto-blanking
-- **Escape hatch**: Safety feature (e.g., triple-click corner, Escape key) to unblank if hotkey fails
-- **Profiles**: Named configurations for different monitor setups
-- **Scheduling**: Time-based blanking rules
+- **Process/EXE detection**: Whitelist of executables that trigger auto-blackout
+- **Escape hatch**: Safety feature (e.g., triple-click corner, Escape key) to restore if hotkey fails
+- **Profiles**: Named configurations for different display setups
+- **Scheduling**: Time-based blackout rules
 - **Brightness control**: Dim instead of fully black
 
 ---
@@ -104,16 +104,16 @@ These may be included in v1.0 if time permits:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  Monitor Blanker Settings                            ─ □ ✕  │
+│  Display Blackout Settings                            ─ □ ✕  │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
-│  Monitors to blank:                                         │
+│  Displays to black out:                                     │
 │  ┌─────────────────────────────────────────────────────┐   │
 │  │                                                     │   │
 │  │    ┌─────────┐   ┌─────────┐   ┌─────────┐         │   │
 │  │    │    1    │   │    2    │   │    3    │         │   │
 │  │    │(Primary)│   │  [X]    │   │  [X]    │         │   │
-│  │    │         │   │ blanked │   │ blanked │         │   │
+│  │    │         │   │blacked  │   │blacked  │         │   │
 │  │    └─────────┘   └─────────┘   └─────────┘         │   │
 │  │                                                     │   │
 │  └─────────────────────────────────────────────────────┘   │
@@ -133,8 +133,8 @@ These may be included in v1.0 if time permits:
 
 | State | Icon Description |
 |-------|------------------|
-| Unblanked | Monitor outline, transparent fill |
-| Blanked | Monitor outline, solid black fill |
+| Normal | Display outline, transparent fill |
+| Blacked out | Display outline, solid black fill |
 
 Icons should support:
 - Light and dark system themes
@@ -148,15 +148,15 @@ Icons should support:
 ### Project Structure
 
 ```
-MonitorBlanker/
-├── MonitorBlanker.sln
+DisplayBlackout/
+├── DisplayBlackout.sln
 ├── src/
-│   └── MonitorBlanker/
-│       ├── MonitorBlanker.csproj
+│   └── DisplayBlackout/
+│       ├── DisplayBlackout.csproj
 │       ├── App.xaml(.cs)           # Application entry, tray icon setup
 │       ├── MainWindow.xaml(.cs)    # Settings window
 │       ├── Services/
-│       │   ├── BlankingService.cs  # Creates/manages blank overlays
+│       │   ├── BlackoutService.cs  # Creates/manages blackout overlays
 │       │   ├── HotkeyService.cs    # Global hotkey registration
 │       │   ├── MonitorService.cs   # Monitor enumeration/info
 │       │   └── SettingsService.cs  # Persist/load settings
@@ -175,20 +175,20 @@ MonitorBlanker/
 
 ### Key Implementation Details
 
-#### Blank Window Creation
+#### Blackout Window Creation
 
-Create a borderless black WinUI 3 window positioned on each target monitor:
+Create a borderless black WinUI 3 window positioned on each target display:
 
 ```csharp
-// BlankWindow.xaml - minimal XAML
+// BlackoutWindow.xaml - minimal XAML
 // <Window ... Title="" xmlns:local="...">
 //     <Grid Background="Black" />
 // </Window>
 
-// BlankWindow.xaml.cs
-public sealed partial class BlankWindow : Window
+// BlackoutWindow.xaml.cs
+public sealed partial class BlackoutWindow : Window
 {
-    public BlankWindow(DisplayArea displayArea)
+    public BlackoutWindow(DisplayArea displayArea)
     {
         InitializeComponent();
 
@@ -307,20 +307,20 @@ watcher.Start();
 **Key points:**
 - `DisplayArea` is the modern WinUI 3 / Windows App SDK abstraction over `HMONITOR`
 - `DisplayAreaWatcher` provides real-time notifications (no need to poll or listen for `WM_DISPLAYCHANGE`)
-- Use `OuterBounds` for blank window positioning (covers entire screen including taskbar)
+- Use `OuterBounds` for blackout window positioning (covers entire screen including taskbar)
 
 #### Settings Persistence
 
 Store settings in:
 - **Packaged app**: `Windows.Storage.ApplicationData.Current.LocalSettings`
-- **Alternative**: JSON file in `%LocalAppData%\MonitorBlanker\`
+- **Alternative**: JSON file in `%LocalAppData%\DisplayBlackout\`
 
 Settings schema:
 ```json
 {
-  "blankedMonitors": ["\\\\?\\DISPLAY1", "\\\\?\\DISPLAY2"],
+  "blackedOutDisplays": ["\\\\?\\DISPLAY1", "\\\\?\\DISPLAY2"],
   "hotkey": { "modifiers": ["Win", "Shift"], "key": "B" },
-  "autoBlankGameMode": true,
+  "autoBlackoutGameMode": true,
   "startWithWindows": false
 }
 ```
@@ -337,7 +337,7 @@ Settings schema:
 ### Microsoft Store
 
 1. **Register as developer**: Microsoft Partner Center account (~$19 one-time)
-1. **Reserve app name**: "Monitor Blanker"
+1. **Reserve app name**: "Display Blackout"
 1. **Submit MSIX package**: Signed with Store certificate
 1. **Store listing**: Screenshots, description, privacy policy
 
@@ -378,16 +378,16 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Build
-        run: dotnet build src/MonitorBlanker -c Release
+        run: dotnet build src/DisplayBlackout -c Release
 
       - name: Publish AOT (${{ matrix.arch }})
-        run: dotnet publish src/MonitorBlanker -c Release -r win-${{ matrix.arch }} --self-contained
+        run: dotnet publish src/DisplayBlackout -c Release -r win-${{ matrix.arch }} --self-contained
 
       - name: Upload artifact (${{ matrix.arch }})
         uses: actions/upload-artifact@v4
         with:
-          name: MonitorBlanker-${{ matrix.arch }}
-          path: src/MonitorBlanker/bin/Release/net10.0-windows*/win-${{ matrix.arch }}/publish/
+          name: DisplayBlackout-${{ matrix.arch }}
+          path: src/DisplayBlackout/bin/Release/net10.0-windows*/win-${{ matrix.arch }}/publish/
 ```
 
 #### Winget Auto-Publish
@@ -408,7 +408,7 @@ jobs:
     steps:
       - uses: vedantmgoyal9/winget-releaser@main
         with:
-          identifier: YourPublisher.MonitorBlanker
+          identifier: YourPublisher.DisplayBlackout
           installers-regex: '\.msix$'
           token: ${{ secrets.WINGET_TOKEN }}
 ```
@@ -428,9 +428,9 @@ For MSIX packaged apps, use Startup Task:
 <!-- Package.appxmanifest -->
 <Extensions>
   <desktop:Extension Category="windows.startupTask">
-    <desktop:StartupTask TaskId="MonitorBlankerStartup"
+    <desktop:StartupTask TaskId="DisplayBlackoutStartup"
                          Enabled="false"
-                         DisplayName="Monitor Blanker" />
+                         DisplayName="Display Blackout" />
   </desktop:Extension>
 </Extensions>
 ```
@@ -455,7 +455,7 @@ Controlled via `StartupTask` API at runtime.
 ### Project Configuration
 
 ```xml
-<!-- MonitorBlanker.csproj -->
+<!-- DisplayBlackout.csproj -->
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -567,11 +567,11 @@ Similar shortcuts (to avoid conflicts):
 
 ### Manual Testing
 
-- [ ] Hotkey toggles blanking on/off
-- [ ] Double-click tray icon toggles blanking
+- [ ] Hotkey toggles blackout on/off
+- [ ] Double-click tray icon toggles blackout
 - [ ] Single-click tray icon opens settings
 - [ ] Monitor selector correctly identifies all monitors
-- [ ] Clicking monitor in selector toggles its blank state
+- [ ] Clicking monitor in selector toggles its blackout state
 - [ ] Hotkey change persists after restart
 - [ ] Start with Windows option works
 - [ ] Dark mode: UI respects system theme
@@ -581,16 +581,16 @@ Similar shortcuts (to avoid conflicts):
 
 ### Edge Cases
 
-- [ ] All monitors blanked (should still be able to unblank via hotkey)
-- [ ] Primary monitor blanked
-- [ ] Monitor arrangement changes while blanked
+- [ ] All monitors blacked out (should still be able to restore via hotkey)
+- [ ] Primary monitor blacked out
+- [ ] Monitor arrangement changes while blacked out
 - [ ] Rapid toggle (no race conditions)
 
 ---
 
 ## Open Questions / Future Research
 
-1. **Escape hatch**: If users request it, implement triple-click corner or Escape key to unblank without hotkey.
+1. **Escape hatch**: If users request it, implement triple-click corner or Escape key to restore without hotkey.
 
 1. **Process detection (v2)**: Use `EnumProcesses` and window enumeration to detect specific executables.
 
@@ -634,9 +634,9 @@ The monitor selector UI does not display numbered labels (1, 2, 3, etc.) on each
 
 ## Deferred Features
 
-### Auto-Blank on Game Mode (Deferred)
+### Auto-Blackout on Game Mode (Deferred)
 
-The original design included automatic blanking when Windows Game Mode activates. This feature was implemented using `SHQueryUserNotificationState` (the same approach PowerToys uses), which returns `QUNS_RUNNING_D3D_FULL_SCREEN` when a Direct3D fullscreen app is running.
+The original design included automatic blackout when Windows Game Mode activates. This feature was implemented using `SHQueryUserNotificationState` (the same approach PowerToys uses), which returns `QUNS_RUNNING_D3D_FULL_SCREEN` when a Direct3D fullscreen app is running.
 
 **Why it was deferred**: The detection proved unreliable in practice. The API only detects exclusive fullscreen D3D applications, missing:
 - Borderless windowed games (increasingly common)

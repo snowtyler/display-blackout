@@ -4,20 +4,20 @@ using System.Runtime.CompilerServices;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using MonitorBlanker.Services;
+using DisplayBlackout.Services;
 using Windows.Graphics;
 
-namespace MonitorBlanker;
+namespace DisplayBlackout;
 
 public sealed partial class MainWindow : WinUIEx.WindowEx
 {
-    private readonly BlankingService _blankingService;
+    private readonly BlackoutService _blackoutService;
 
     public ObservableCollection<MonitorItem> Monitors { get; } = [];
 
-    public MainWindow(BlankingService blankingService)
+    public MainWindow(BlackoutService blackoutService)
     {
-        _blankingService = blankingService;
+        _blackoutService = blackoutService;
         InitializeComponent();
         Title = App.ResourceLoader.GetString("AppDisplayName");
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "icon.ico"));
@@ -26,25 +26,25 @@ public sealed partial class MainWindow : WinUIEx.WindowEx
         LoadMonitors();
 
         // Initialize toggle state and subscribe to external changes
-        BlankingToggle.IsOn = _blankingService.IsBlanked;
-        _blankingService.BlankingStateChanged += OnBlankingStateChanged;
+        BlackoutToggle.IsOn = _blackoutService.IsBlackedOut;
+        _blackoutService.BlackoutStateChanged += OnBlackoutStateChanged;
     }
 
-    private void OnBlankingStateChanged(object? sender, BlankingStateChangedEventArgs e)
+    private void OnBlackoutStateChanged(object? sender, BlackoutStateChangedEventArgs e)
     {
-        // Update toggle when blanking state changes externally (hotkey, tray icon)
+        // Update toggle when blackout state changes externally (hotkey, tray icon)
         DispatcherQueue.TryEnqueue(() =>
         {
-            BlankingToggle.IsOn = e.IsBlanked;
+            BlackoutToggle.IsOn = e.IsBlackedOut;
         });
     }
 
-    private void BlankingToggle_Toggled(object sender, RoutedEventArgs e)
+    private void BlackoutToggle_Toggled(object sender, RoutedEventArgs e)
     {
         // Only toggle if the state actually differs (avoids double-toggle from event handler)
-        if (BlankingToggle.IsOn != _blankingService.IsBlanked)
+        if (BlackoutToggle.IsOn != _blackoutService.IsBlackedOut)
         {
-            _blankingService.Toggle();
+            _blackoutService.Toggle();
         }
     }
 
@@ -54,7 +54,7 @@ public sealed partial class MainWindow : WinUIEx.WindowEx
         if (displays.Count == 0) return;
 
         var primaryId = DisplayArea.Primary?.DisplayId.Value;
-        var selectedIds = _blankingService.SelectedMonitorIds;
+        var selectedIds = _blackoutService.SelectedMonitorIds;
 
         // Copy to a list so we can sort it later, and calculate bounding boxes.
         //
@@ -121,10 +121,10 @@ public sealed partial class MainWindow : WinUIEx.WindowEx
 
     private void MonitorToggleButton_Click(object sender, RoutedEventArgs e)
     {
-        UpdateBlankingServiceSelection();
+        UpdateBlackoutServiceSelection();
     }
 
-    private void UpdateBlankingServiceSelection()
+    private void UpdateBlackoutServiceSelection()
     {
         var selectedIds = new HashSet<ulong>();
         foreach (var monitor in Monitors)
@@ -134,7 +134,7 @@ public sealed partial class MainWindow : WinUIEx.WindowEx
                 selectedIds.Add(monitor.DisplayId);
             }
         }
-        _blankingService.UpdateSelectedMonitors(selectedIds);
+        _blackoutService.UpdateSelectedMonitors(selectedIds);
     }
 
 }

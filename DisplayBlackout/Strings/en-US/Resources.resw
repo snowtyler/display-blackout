@@ -43,17 +43,17 @@
 
   <!-- App name used throughout -->
   <data name="AppDisplayName" xml:space="preserve">
-    <value>Monitor Blanker</value>
+    <value>Display Blackout</value>
     <comment>The display name of the application</comment>
   </data>
   <data name="AppDescription" xml:space="preserve">
-    <value>Blank selected monitors on demand</value>
+    <value>Black out selected displays on demand</value>
     <comment>Short description of the application</comment>
   </data>
 
   <!-- System tray -->
   <data name="TrayIconTooltip" xml:space="preserve">
-    <value>Monitor Blanker - Click to open settings, double-click to toggle (Win+Shift+B)</value>
+    <value>Display Blackout - Click to open settings, double-click to toggle (Win+Shift+B)</value>
     <comment>Tooltip shown when hovering over the system tray icon</comment>
   </data>
   <data name="ContextMenuSettings" xml:space="preserve">
@@ -62,7 +62,7 @@
   </data>
   <data name="ContextMenuToggle" xml:space="preserve">
     <value>Toggle</value>
-    <comment>Context menu item to toggle blanking</comment>
+    <comment>Context menu item to toggle blackout</comment>
   </data>
   <data name="ContextMenuExit" xml:space="preserve">
     <value>Exit</value>
@@ -71,23 +71,23 @@
 
   <!-- Main window - using x:Uid pattern for XAML binding -->
   <data name="Instructions.Text" xml:space="preserve">
-    <value>Click monitors to toggle blanking. Dark monitors will be blanked.</value>
+    <value>Click displays to toggle blackout. Dark displays will be blacked out.</value>
     <comment>Instructions shown at the top of the settings window</comment>
   </data>
-  <data name="MonitorBlankingCard.Header" xml:space="preserve">
-    <value>Monitor blanking</value>
-    <comment>Header for the blanking toggle settings card</comment>
+  <data name="DisplayBlackoutCard.Header" xml:space="preserve">
+    <value>Display blackout</value>
+    <comment>Header for the blackout toggle settings card</comment>
   </data>
-  <data name="MonitorBlankingCard.Description" xml:space="preserve">
-    <value>Blank the selected monitors</value>
-    <comment>Description for the blanking toggle settings card</comment>
+  <data name="DisplayBlackoutCard.Description" xml:space="preserve">
+    <value>Black out the selected displays</value>
+    <comment>Description for the blackout toggle settings card</comment>
   </data>
   <data name="ActivationShortcutCard.Header" xml:space="preserve">
     <value>Activation shortcut</value>
     <comment>Header for the keyboard shortcut settings card</comment>
   </data>
   <data name="ActivationShortcutCard.Description" xml:space="preserve">
-    <value>Press this shortcut to toggle blanking</value>
+    <value>Press this shortcut to toggle blackout</value>
     <comment>Description for the keyboard shortcut settings card</comment>
   </data>
   <data name="KeyShift.Text" xml:space="preserve">
@@ -95,14 +95,14 @@
     <comment>Label for the Shift key in the shortcut display</comment>
   </data>
 
-  <!-- Accessibility - format strings for monitor names -->
+  <!-- Accessibility - format strings for display names -->
   <data name="MonitorAccessibleName" xml:space="preserve">
-    <value>Monitor {0} of {1}</value>
-    <comment>{0} is the monitor number, {1} is the total count</comment>
+    <value>Display {0} of {1}</value>
+    <comment>{0} is the display number, {1} is the total count</comment>
   </data>
   <data name="MonitorAccessibleNamePrimary" xml:space="preserve">
-    <value>Monitor {0} of {1}, primary</value>
-    <comment>{0} is the monitor number, {1} is the total count. Used for the primary display.</comment>
+    <value>Display {0} of {1}, primary</value>
+    <comment>{0} is the display number, {1} is the total count. Used for the primary display.</comment>
   </data>
 
 </root>

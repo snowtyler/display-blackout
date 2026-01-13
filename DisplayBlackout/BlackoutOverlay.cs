@@ -2,10 +2,10 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Windows.Graphics;
 
-namespace MonitorBlanker;
+namespace DisplayBlackout;
 
 /// <summary>
-/// Pure Win32 windows for blanking monitors. Uses raw Win32 instead of XAML to avoid
+/// Pure Win32 windows for blacking out monitors. Uses raw Win32 instead of XAML to avoid
 /// overhead and white flash on creation.
 /// </summary>
 /// <remarks>
@@ -13,9 +13,9 @@ namespace MonitorBlanker;
 /// Windows from detecting a "fullscreen app" and automatically enabling Focus Assist (Do Not
 /// Disturb), which would suppress notifications system-wide.
 /// </remarks>
-public sealed partial class BlankOverlay : IDisposable
+public sealed partial class BlackoutOverlay : IDisposable
 {
-    private const string WindowClassName = "MonitorBlankerOverlay";
+    private const string WindowClassName = "DisplayBlackoutOverlay";
     private static readonly object s_classLock = new();
     private static bool s_classRegistered;
     private static WndProcDelegate? s_wndProc;
@@ -25,7 +25,7 @@ public sealed partial class BlankOverlay : IDisposable
 
     private delegate nint WndProcDelegate(nint hwnd, uint msg, nint wParam, nint lParam);
 
-    public BlankOverlay(RectInt32 bounds)
+    public BlackoutOverlay(RectInt32 bounds)
     {
         EnsureWindowClassRegistered();
 

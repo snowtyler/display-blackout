@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using Microsoft.UI.Xaml;
 using WinRT.Interop;
 
-namespace MonitorBlanker.Services;
+namespace DisplayBlackout.Services;
 
 public sealed partial class HotkeyService : IDisposable
 {

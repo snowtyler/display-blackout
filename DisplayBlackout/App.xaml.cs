@@ -3,10 +3,10 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.Windows.ApplicationModel.Resources;
-using MonitorBlanker.Services;
+using DisplayBlackout.Services;
 using WinUIEx;
 
-namespace MonitorBlanker;
+namespace DisplayBlackout;
 
 public sealed partial class App : Application, IDisposable
 {
@@ -17,7 +17,7 @@ public sealed partial class App : Application, IDisposable
     private TrayIcon? _trayIcon;
     private MainWindow? _settingsWindow;
     private Window? _hiddenWindow;
-    private BlankingService? _blankingService;
+    private BlackoutService? _blackoutService;
     private HotkeyService? _hotkeyService;
     private bool _disposed;
 
@@ -32,19 +32,19 @@ public sealed partial class App : Application, IDisposable
             .Skip(1) // Skip executable path
             .Any(arg => arg.Equals("/OpenSettings", StringComparison.OrdinalIgnoreCase));
 
-        _blankingService = new BlankingService();
+        _blackoutService = new BlackoutService();
 
         // Create a hidden window for hotkey messages
-        _hiddenWindow = new Window { Title = "MonitorBlankerHidden" };
+        _hiddenWindow = new Window { Title = "DisplayBlackoutHidden" };
 
         _hotkeyService = new HotkeyService();
-        _hotkeyService.HotkeyPressed += (_, _) => ToggleBlanking();
+        _hotkeyService.HotkeyPressed += (_, _) => ToggleBlackout();
         _hotkeyService.Register(_hiddenWindow);
 
         var iconPath = Path.Combine(AppContext.BaseDirectory, "icon.ico");
         _trayIcon = new TrayIcon(1, iconPath, s_resourceLoader.GetString("TrayIconTooltip"));
         _trayIcon.Selected += (_, _) => ShowSettings();
-        _trayIcon.LeftDoubleClick += (_, _) => ToggleBlanking();
+        _trayIcon.LeftDoubleClick += (_, _) => ToggleBlackout();
         _trayIcon.ContextMenu += OnTrayContextMenu;
         _trayIcon.IsVisible = true;
 
@@ -58,16 +58,16 @@ public sealed partial class App : Application, IDisposable
     {
         if (_settingsWindow is null)
         {
-            _settingsWindow = new MainWindow(_blankingService!);
+            _settingsWindow = new MainWindow(_blackoutService!);
             _settingsWindow.Closed += (_, _) => _settingsWindow = null;
         }
 
         _settingsWindow.Activate();
     }
 
-    private void ToggleBlanking()
+    private void ToggleBlackout()
     {
-        _blankingService?.Toggle();
+        _blackoutService?.Toggle();
     }
 
     private void OnTrayContextMenu(TrayIcon sender, TrayIconEventArgs e)
@@ -76,7 +76,7 @@ public sealed partial class App : Application, IDisposable
         settingsItem.Click += (_, _) => ShowSettings();
 
         var toggleItem = new MenuFlyoutItem { Text = s_resourceLoader.GetString("ContextMenuToggle") };
-        toggleItem.Click += (_, _) => ToggleBlanking();
+        toggleItem.Click += (_, _) => ToggleBlackout();
 
         var exitItem = new MenuFlyoutItem { Text = s_resourceLoader.GetString("ContextMenuExit") };
         exitItem.Click += (_, _) => Environment.Exit(0);
@@ -95,7 +95,7 @@ public sealed partial class App : Application, IDisposable
         if (_disposed) return;
         _disposed = true;
         _hotkeyService?.Dispose();
-        _blankingService?.Dispose();
+        _blackoutService?.Dispose();
         _hiddenWindow?.Close();
         _trayIcon?.Dispose();
         GC.SuppressFinalize(this);

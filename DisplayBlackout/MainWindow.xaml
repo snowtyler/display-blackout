@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <winex:WindowEx
-    x:Class="MonitorBlanker.MainWindow"
+    x:Class="DisplayBlackout.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:MonitorBlanker"
+    xmlns:local="using:DisplayBlackout"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:winex="using:WinUIEx"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -55,13 +55,13 @@
             </Border>
         </Viewbox>
 
-        <!-- Blanking toggle section -->
-        <controls:SettingsCard x:Uid="MonitorBlankingCard">
+        <!-- Blackout toggle section -->
+        <controls:SettingsCard x:Uid="DisplayBlackoutCard">
             <controls:SettingsCard.HeaderIcon>
                 <ImageIcon Source="ms-appx:///Assets/iconLogo.targetsize-24.png" />
             </controls:SettingsCard.HeaderIcon>
-            <ToggleSwitch x:Name="BlankingToggle"
-                          Toggled="BlankingToggle_Toggled" />
+            <ToggleSwitch x:Name="BlackoutToggle"
+                          Toggled="BlackoutToggle_Toggled" />
         </controls:SettingsCard>
 
         <!-- Activation section -->

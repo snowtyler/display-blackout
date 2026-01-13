@@ -1,20 +1,20 @@
 using Microsoft.UI.Windowing;
 
-namespace MonitorBlanker.Services;
+namespace DisplayBlackout.Services;
 
-public sealed partial class BlankingService : IDisposable
+public sealed partial class BlackoutService : IDisposable
 {
-    private readonly Dictionary<ulong, BlankOverlay> _blankOverlays = [];
+    private readonly Dictionary<ulong, BlackoutOverlay> _blackoutOverlays = [];
     private HashSet<ulong>? _selectedMonitorIds;
-    private bool _isBlanked;
+    private bool _isBlackedOut;
     private bool _disposed;
 
-    public bool IsBlanked => _isBlanked;
+    public bool IsBlackedOut => _isBlackedOut;
 
-    public event EventHandler<BlankingStateChangedEventArgs>? BlankingStateChanged;
+    public event EventHandler<BlackoutStateChangedEventArgs>? BlackoutStateChanged;
 
     /// <summary>
-    /// Updates which monitors should be blanked. Null means default (all non-primary).
+    /// Updates which monitors should be blacked out. Null means default (all non-primary).
     /// </summary>
     public void UpdateSelectedMonitors(HashSet<ulong>? monitorIds)
     {
@@ -28,19 +28,19 @@ public sealed partial class BlankingService : IDisposable
 
     public void Toggle()
     {
-        if (_isBlanked)
+        if (_isBlackedOut)
         {
-            Unblank();
+            Restore();
         }
         else
         {
-            Blank();
+            BlackOut();
         }
     }
 
-    public void Blank()
+    public void BlackOut()
     {
-        if (_isBlanked) return;
+        if (_isBlackedOut) return;
 
         var displays = DisplayArea.FindAll();
         var primaryId = DisplayArea.Primary?.DisplayId.Value;
@@ -53,43 +53,43 @@ public sealed partial class BlankingService : IDisposable
             var displayId = display.DisplayId.Value;
 
             // If selection is set, use it; otherwise default to all non-primary
-            bool shouldBlank = _selectedMonitorIds != null
+            bool shouldBlackOut = _selectedMonitorIds != null
                 ? _selectedMonitorIds.Contains(displayId)
                 : displayId != primaryId;
 
-            if (!shouldBlank) continue;
+            if (!shouldBlackOut) continue;
 
-            var overlay = new BlankOverlay(display.OuterBounds);
-            _blankOverlays[displayId] = overlay;
+            var overlay = new BlackoutOverlay(display.OuterBounds);
+            _blackoutOverlays[displayId] = overlay;
         }
 
-        _isBlanked = true;
-        BlankingStateChanged?.Invoke(this, new BlankingStateChangedEventArgs(true));
+        _isBlackedOut = true;
+        BlackoutStateChanged?.Invoke(this, new BlackoutStateChangedEventArgs(true));
     }
 
-    public void Unblank()
+    public void Restore()
     {
-        if (!_isBlanked) return;
+        if (!_isBlackedOut) return;
 
-        foreach (var overlay in _blankOverlays.Values)
+        foreach (var overlay in _blackoutOverlays.Values)
         {
             overlay.Dispose();
         }
-        _blankOverlays.Clear();
+        _blackoutOverlays.Clear();
 
-        _isBlanked = false;
-        BlankingStateChanged?.Invoke(this, new BlankingStateChangedEventArgs(false));
+        _isBlackedOut = false;
+        BlackoutStateChanged?.Invoke(this, new BlackoutStateChangedEventArgs(false));
     }
 
     public void Dispose()
     {
         if (_disposed) return;
         _disposed = true;
-        Unblank();
+        Restore();
     }
 }
 
-public sealed class BlankingStateChangedEventArgs(bool isBlanked) : EventArgs
+public sealed class BlackoutStateChangedEventArgs(bool isBlackedOut) : EventArgs
 {
-    public bool IsBlanked { get; } = isBlanked;
+    public bool IsBlackedOut { get; } = isBlackedOut;
 }

@@ -1,10 +1,10 @@
 {
   "profiles": {
-    "MonitorBlanker (Package)": {
+    "DisplayBlackout (Package)": {
       "commandName": "MsixPackage",
       "nativeDebugging": true
     },
-    "MonitorBlanker (Unpackaged)": {
+    "DisplayBlackout (Unpackaged)": {
       "commandName": "Project",
       "nativeDebugging": true
     },
