@@ -19,6 +19,7 @@ public sealed partial class MainWindow : WinUIEx.WindowEx
     {
         _blankingService = blankingService;
         InitializeComponent();
+        Title = App.ResourceLoader.GetString("AppDisplayName");
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "icon.ico"));
         AppWindow.TitleBar.PreferredTheme = TitleBarTheme.UseDefaultAppMode;
 
@@ -152,9 +153,11 @@ public sealed partial class MonitorItem : INotifyPropertyChanged
     // Accessibility properties
     public int MonitorIndex { get; set; }
     public int TotalMonitors { get; set; }
-    public string AccessibleName => IsPrimary
-        ? $"Monitor {MonitorIndex} of {TotalMonitors}, primary"
-        : $"Monitor {MonitorIndex} of {TotalMonitors}";
+    public string AccessibleName => string.Format(
+        System.Globalization.CultureInfo.CurrentCulture,
+        App.ResourceLoader.GetString(IsPrimary ? "MonitorAccessibleNamePrimary" : "MonitorAccessibleName"),
+        MonitorIndex,
+        TotalMonitors);
 
     // Position as margin for Grid-based layout
     public Thickness PositionMargin => new(ScaledX, ScaledY, 0, 0);

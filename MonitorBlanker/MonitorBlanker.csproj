@@ -34,6 +34,9 @@
     <!-- Icon configuration -->
     <UnoIconForegroundFile>Assets\icon.svg</UnoIconForegroundFile>
     <UnoIconBackgroundColor>transparent</UnoIconBackgroundColor>
+
+    <!-- Localization -->
+    <DefaultLanguage>en-US</DefaultLanguage>
   </PropertyGroup>
 
   <ItemGroup>

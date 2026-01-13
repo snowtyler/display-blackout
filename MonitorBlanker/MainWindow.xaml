@@ -9,7 +9,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="Monitor Blanker"
     Width="1004"
     Height="560">
 
@@ -18,7 +17,7 @@
     </winex:WindowEx.SystemBackdrop>
 
     <StackPanel Padding="30" MaxWidth="1500" HorizontalAlignment="Center" Spacing="16">
-        <TextBlock Text="Click monitors to toggle blanking. Dark monitors will be blanked."
+        <TextBlock x:Uid="Instructions"
                    Style="{StaticResource BodyTextBlockStyle}"
                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                    Margin="0,0,0,8" />
@@ -57,20 +56,16 @@
         </Viewbox>
 
         <!-- Blanking toggle section -->
-        <controls:SettingsCard Header="Monitor blanking"
-                               Description="Blank the selected monitors">
+        <controls:SettingsCard x:Uid="MonitorBlankingCard">
             <controls:SettingsCard.HeaderIcon>
                 <ImageIcon Source="ms-appx:///Assets/iconLogo.targetsize-24.png" />
             </controls:SettingsCard.HeaderIcon>
             <ToggleSwitch x:Name="BlankingToggle"
-                          OnContent="On"
-                          OffContent="Off"
                           Toggled="BlankingToggle_Toggled" />
         </controls:SettingsCard>
 
         <!-- Activation section -->
-        <controls:SettingsCard Header="Activation shortcut"
-                               Description="Press this shortcut to toggle blanking">
+        <controls:SettingsCard x:Uid="ActivationShortcutCard">
             <controls:SettingsCard.HeaderIcon>
                 <FontIcon Glyph="&#xEDA7;" />
             </controls:SettingsCard.HeaderIcon>
@@ -85,7 +80,7 @@
                 </Grid>
                 <Grid Style="{StaticResource KeyBadgeStyle}">
                     <Grid Style="{StaticResource KeyBadgeContentStyle}">
-                        <TextBlock Text="Shift" Style="{StaticResource KeyBadgeTextStyle}" />
+                        <TextBlock x:Uid="KeyShift" Style="{StaticResource KeyBadgeTextStyle}" />
                     </Grid>
                 </Grid>
                 <Grid Style="{StaticResource KeyBadgeStyle}">

@@ -15,7 +15,7 @@
   <mp:PhoneIdentity PhoneProductId="33be6640-5314-4d74-85b4-f224b00b17e2" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>Monitor Blanker</DisplayName>
+    <DisplayName>ms-resource:AppDisplayName</DisplayName>
     <PublisherDisplayName>d</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -26,7 +26,7 @@
   </Dependencies>
 
   <Resources>
-    <Resource Language="x-generate"/>
+    <Resource Language="en-US"/>
   </Resources>
 
   <Applications>
@@ -34,8 +34,8 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="Monitor Blanker"
-        Description="Monitor Blanker">
+        DisplayName="ms-resource:AppDisplayName"
+        Description="ms-resource:AppDescription">
         <uap:DefaultTile />
       </uap:VisualElements>
     </Application>

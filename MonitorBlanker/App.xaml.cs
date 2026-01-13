@@ -2,6 +2,7 @@ using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.Windows.ApplicationModel.Resources;
 using MonitorBlanker.Services;
 using WinUIEx;
 
@@ -9,6 +10,10 @@ namespace MonitorBlanker;
 
 public sealed partial class App : Application, IDisposable
 {
+    private static readonly ResourceLoader s_resourceLoader = new();
+
+    public static ResourceLoader ResourceLoader => s_resourceLoader;
+
     private TrayIcon? _trayIcon;
     private MainWindow? _settingsWindow;
     private Window? _hiddenWindow;
@@ -37,7 +42,7 @@ public sealed partial class App : Application, IDisposable
         _hotkeyService.Register(_hiddenWindow);
 
         var iconPath = Path.Combine(AppContext.BaseDirectory, "icon.ico");
-        _trayIcon = new TrayIcon(1, iconPath, "Monitor Blanker - Click to open settings, double-click to toggle (Win+Shift+B)");
+        _trayIcon = new TrayIcon(1, iconPath, s_resourceLoader.GetString("TrayIconTooltip"));
         _trayIcon.Selected += (_, _) => ShowSettings();
         _trayIcon.LeftDoubleClick += (_, _) => ToggleBlanking();
         _trayIcon.ContextMenu += OnTrayContextMenu;
@@ -67,13 +72,13 @@ public sealed partial class App : Application, IDisposable
 
     private void OnTrayContextMenu(TrayIcon sender, TrayIconEventArgs e)
     {
-        var settingsItem = new MenuFlyoutItem { Text = "Settings" };
+        var settingsItem = new MenuFlyoutItem { Text = s_resourceLoader.GetString("ContextMenuSettings") };
         settingsItem.Click += (_, _) => ShowSettings();
 
-        var toggleItem = new MenuFlyoutItem { Text = "Toggle" };
+        var toggleItem = new MenuFlyoutItem { Text = s_resourceLoader.GetString("ContextMenuToggle") };
         toggleItem.Click += (_, _) => ToggleBlanking();
 
-        var exitItem = new MenuFlyoutItem { Text = "Exit" };
+        var exitItem = new MenuFlyoutItem { Text = s_resourceLoader.GetString("ContextMenuExit") };
         exitItem.Click += (_, _) => Environment.Exit(0);
 
         var flyout = new MenuFlyout();
