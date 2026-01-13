@@ -4,10 +4,17 @@ namespace DisplayBlackout.Services;
 
 public sealed partial class BlackoutService : IDisposable
 {
+    private readonly SettingsService _settingsService;
     private readonly Dictionary<ulong, BlackoutOverlay> _blackoutOverlays = [];
     private HashSet<ulong>? _selectedMonitorIds;
     private bool _isBlackedOut;
     private bool _disposed;
+
+    public BlackoutService(SettingsService settingsService)
+    {
+        _settingsService = settingsService;
+        _selectedMonitorIds = _settingsService.LoadSelectedMonitorIds();
+    }
 
     public bool IsBlackedOut => _isBlackedOut;
 
@@ -19,6 +26,7 @@ public sealed partial class BlackoutService : IDisposable
     public void UpdateSelectedMonitors(HashSet<ulong>? monitorIds)
     {
         _selectedMonitorIds = monitorIds;
+        _settingsService.SaveSelectedMonitorIds(monitorIds);
     }
 
     /// <summary>

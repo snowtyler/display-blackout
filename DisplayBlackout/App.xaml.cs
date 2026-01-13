@@ -17,6 +17,7 @@ public sealed partial class App : Application, IDisposable
     private TrayIcon? _trayIcon;
     private MainWindow? _settingsWindow;
     private Window? _hiddenWindow;
+    private SettingsService? _settingsService;
     private BlackoutService? _blackoutService;
     private HotkeyService? _hotkeyService;
     private bool _disposed;
@@ -32,7 +33,8 @@ public sealed partial class App : Application, IDisposable
             .Skip(1) // Skip executable path
             .Any(arg => arg.Equals("/OpenSettings", StringComparison.OrdinalIgnoreCase));
 
-        _blackoutService = new BlackoutService();
+        _settingsService = new SettingsService();
+        _blackoutService = new BlackoutService(_settingsService);
 
         // Create a hidden window for hotkey messages
         _hiddenWindow = new Window { Title = "DisplayBlackoutHidden" };
