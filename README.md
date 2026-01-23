@@ -10,6 +10,12 @@ A Windows 11 system tray utility that blacks out selected displays on demand. Us
 - **Start with Windows**: Optional auto-start on login
 - **Lightweight**: Native AOT compiled, no .NET runtime required
 
+## Screenshots
+
+![The settings screen](./screenshots/settings-window-light-mode.png)
+
+See the [`screenshots/`](./screenshots/) folder for more.
+
 ## Requirements
 
 - Windows 11 version 24H2 or later

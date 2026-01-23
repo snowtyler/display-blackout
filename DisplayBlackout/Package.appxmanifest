@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 
 <Package
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
@@ -9,21 +9,21 @@
   IgnorableNamespaces="uap uap5 rescap">
 
   <Identity
-    Name="33be6640-5314-4d74-85b4-f224b00b17e2"
-    Publisher="CN=d"
-    Version="1.0.0.0" />
+    Name="DenicolaTech.DisplayBlackout"
+    Publisher="CN=CD6A0648-4A8D-4B8B-84F8-7FD158193756"
+    Version="1.0.7.0" />
 
-  <mp:PhoneIdentity PhoneProductId="33be6640-5314-4d74-85b4-f224b00b17e2" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="9983b983-04d2-4866-8c9e-db7c07b117c9" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>ms-resource:AppDisplayName</DisplayName>
     <PublisherDisplayName>Denicola Tech</PublisherDisplayName>
-    <Logo>Assets\StoreLogo.png</Logo>
+    <Logo>Assets\iconStoreLogo.png</Logo>
   </Properties>
 
   <Dependencies>
-    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.26100.0" MaxVersionTested="10.0.26100.0" />
     <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.26100.0" MaxVersionTested="10.0.26100.0" />
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.26100.0" MaxVersionTested="10.0.26100.0" />
   </Dependencies>
 
   <Resources>
