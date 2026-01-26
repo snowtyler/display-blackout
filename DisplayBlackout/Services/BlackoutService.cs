@@ -1,4 +1,5 @@
 using Microsoft.UI.Windowing;
+using Windows.Graphics;
 
 namespace DisplayBlackout.Services;
 
@@ -6,14 +7,18 @@ public sealed partial class BlackoutService : IDisposable
 {
     private readonly SettingsService _settingsService;
     private readonly Dictionary<ulong, BlackoutOverlay> _blackoutOverlays = [];
-    private HashSet<ulong>? _selectedMonitorIds;
+    private HashSet<string>? _selectedMonitorBounds;
+    private int _opacity;
+    private bool _clickThrough;
     private bool _isBlackedOut;
     private bool _disposed;
 
     public BlackoutService(SettingsService settingsService)
     {
         _settingsService = settingsService;
-        _selectedMonitorIds = _settingsService.LoadSelectedMonitorIds();
+        _selectedMonitorBounds = _settingsService.LoadSelectedMonitorBounds();
+        _opacity = _settingsService.LoadOpacity();
+        _clickThrough = _settingsService.LoadClickThrough();
     }
 
     public bool IsBlackedOut => _isBlackedOut;
@@ -21,18 +26,117 @@ public sealed partial class BlackoutService : IDisposable
     public event EventHandler<BlackoutStateChangedEventArgs>? BlackoutStateChanged;
 
     /// <summary>
-    /// Updates which monitors should be blacked out. Null means default (all non-primary).
+    /// Updates which monitors should be blacked out using their bounds as stable identifiers.
+    /// Null means default (all non-primary).
     /// </summary>
-    public void UpdateSelectedMonitors(HashSet<ulong>? monitorIds)
+    public void UpdateSelectedMonitors(HashSet<string>? monitorBounds)
     {
-        _selectedMonitorIds = monitorIds;
-        _settingsService.SaveSelectedMonitorIds(monitorIds);
+        _selectedMonitorBounds = monitorBounds;
+        _settingsService.SaveSelectedMonitorBounds(monitorBounds);
+
+        // Refresh overlays if currently blacked out
+        if (_isBlackedOut)
+        {
+            RefreshOverlays();
+        }
+    }
+
+    private void RefreshOverlays()
+    {
+        var displays = DisplayArea.FindAll();
+        var primaryId = DisplayArea.Primary?.DisplayId.Value;
+        var currentDisplayIds = new HashSet<ulong>();
+
+        for (int i = 0; i < displays.Count; i++)
+        {
+            var display = displays[i];
+            var displayId = display.DisplayId.Value;
+            var bounds = display.OuterBounds;
+            var boundsKey = SettingsService.GetMonitorKey(bounds);
+            currentDisplayIds.Add(displayId);
+
+            bool shouldBlackOut = _selectedMonitorBounds != null
+                ? _selectedMonitorBounds.Contains(boundsKey)
+                : displayId != primaryId;
+
+            bool hasOverlay = _blackoutOverlays.ContainsKey(displayId);
+
+            if (shouldBlackOut && !hasOverlay)
+            {
+                // Add overlay for newly selected monitor
+                var overlay = new BlackoutOverlay(bounds, _opacity, _clickThrough);
+                _blackoutOverlays[displayId] = overlay;
+            }
+            else if (!shouldBlackOut && hasOverlay)
+            {
+                // Remove overlay for deselected monitor
+                _blackoutOverlays[displayId].Dispose();
+                _blackoutOverlays.Remove(displayId);
+            }
+        }
+
+        // Remove overlays for displays that no longer exist
+        var toRemove = _blackoutOverlays.Keys.Where(id => !currentDisplayIds.Contains(id)).ToList();
+        foreach (var id in toRemove)
+        {
+            _blackoutOverlays[id].Dispose();
+            _blackoutOverlays.Remove(id);
+        }
     }
 
     /// <summary>
-    /// Gets the currently selected monitor IDs for UI initialization.
+    /// Checks if a monitor with the given bounds is selected for blackout.
     /// </summary>
-    public IReadOnlySet<ulong>? SelectedMonitorIds => _selectedMonitorIds;
+    public bool IsMonitorSelected(RectInt32 bounds)
+    {
+        if (_selectedMonitorBounds is null) return false;
+        return _selectedMonitorBounds.Contains(SettingsService.GetMonitorKey(bounds));
+    }
+
+    /// <summary>
+    /// Gets the currently selected monitor bounds for UI initialization.
+    /// </summary>
+    public IReadOnlySet<string>? SelectedMonitorBounds => _selectedMonitorBounds;
+
+    /// <summary>
+    /// Gets the current opacity percentage (0-100).
+    /// </summary>
+    public int Opacity => _opacity;
+
+    /// <summary>
+    /// Gets whether click-through is enabled.
+    /// </summary>
+    public bool ClickThrough => _clickThrough;
+
+    /// <summary>
+    /// Updates the opacity of the blackout overlays.
+    /// </summary>
+    public void UpdateOpacity(int opacity)
+    {
+        _opacity = Math.Clamp(opacity, 0, 100);
+        _settingsService.SaveOpacity(_opacity);
+
+        // Update existing overlays
+        foreach (var overlay in _blackoutOverlays.Values)
+        {
+            overlay.SetOpacity(_opacity);
+        }
+    }
+
+    /// <summary>
+    /// Updates whether the overlay is click-through.
+    /// </summary>
+    public void UpdateClickThrough(bool clickThrough)
+    {
+        _clickThrough = clickThrough;
+        _settingsService.SaveClickThrough(_clickThrough);
+
+        // Update existing overlays
+        foreach (var overlay in _blackoutOverlays.Values)
+        {
+            overlay.SetClickThrough(_clickThrough);
+        }
+    }
 
     public void Toggle()
     {
@@ -59,15 +163,17 @@ public sealed partial class BlackoutService : IDisposable
         {
             var display = displays[i];
             var displayId = display.DisplayId.Value;
+            var bounds = display.OuterBounds;
+            var boundsKey = SettingsService.GetMonitorKey(bounds);
 
             // If selection is set, use it; otherwise default to all non-primary
-            bool shouldBlackOut = _selectedMonitorIds != null
-                ? _selectedMonitorIds.Contains(displayId)
+            bool shouldBlackOut = _selectedMonitorBounds != null
+                ? _selectedMonitorBounds.Contains(boundsKey)
                 : displayId != primaryId;
 
             if (!shouldBlackOut) continue;
 
-            var overlay = new BlackoutOverlay(display.OuterBounds);
+            var overlay = new BlackoutOverlay(bounds, _opacity, _clickThrough);
             _blackoutOverlays[displayId] = overlay;
         }
 

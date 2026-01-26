@@ -14,6 +14,7 @@ public sealed partial class App : Application, IDisposable
 
     private TrayIcon? _trayIcon;
     private MainWindow? _settingsWindow;
+    private bool _isShowingSettings;
     private Window? _hiddenWindow;
     private SettingsService? _settingsService;
     private BlackoutService? _blackoutService;
@@ -46,8 +47,8 @@ public sealed partial class App : Application, IDisposable
         _iconActivePath = Path.Combine(AppContext.BaseDirectory, "icon.ico");
         _iconInactivePath = Path.Combine(AppContext.BaseDirectory, "icon-inactive.ico");
         _trayIcon = new TrayIcon(1, _iconInactivePath, s_resourceLoader.GetString("TrayIconTooltip"));
-        _trayIcon.Selected += (_, _) => ShowSettings();
-        _trayIcon.LeftDoubleClick += (_, _) => ToggleBlackout();
+        _trayIcon.Selected += (_, _) => ToggleBlackout();
+        _trayIcon.LeftDoubleClick += (_, _) => ShowSettings();
         _trayIcon.ContextMenu += OnTrayContextMenu;
         _trayIcon.IsVisible = true;
 
@@ -61,10 +62,14 @@ public sealed partial class App : Application, IDisposable
 
     private void ShowSettings()
     {
+        if (_isShowingSettings) return;
+
         if (_settingsWindow is null)
         {
+            _isShowingSettings = true;
             _settingsWindow = new MainWindow(_blackoutService!);
             _settingsWindow.Closed += (_, _) => _settingsWindow = null;
+            _isShowingSettings = false;
         }
 
         _settingsWindow.Activate();
@@ -79,6 +84,13 @@ public sealed partial class App : Application, IDisposable
     {
         var iconPath = e.IsBlackedOut ? _iconActivePath : _iconInactivePath;
         _trayIcon?.SetIcon(iconPath!);
+        // Force tooltip refresh - setter only updates if value changes
+        if (_trayIcon != null)
+        {
+            var tooltip = s_resourceLoader.GetString("TrayIconTooltip");
+            _trayIcon.Tooltip = string.Empty;
+            _trayIcon.Tooltip = tooltip;
+        }
     }
 
     private void OnTrayContextMenu(TrayIcon sender, TrayIconEventArgs e)

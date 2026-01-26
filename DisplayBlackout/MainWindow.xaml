@@ -17,6 +17,7 @@
         <MicaBackdrop />
     </winex:WindowEx.SystemBackdrop>
 
+    <ScrollViewer>
     <StackPanel Padding="30" MaxWidth="1500" HorizontalAlignment="Center" Spacing="{StaticResource SettingsCardSpacing}">
         <TextBlock x:Uid="Instructions"
                    Style="{StaticResource BodyTextBlockStyle}"
@@ -26,7 +27,7 @@
         <!-- Visual monitor layout - scales down with window -->
         <Viewbox x:Name="MonitorViewbox"
                  Stretch="Uniform"
-                 HorizontalAlignment="Left"
+                 HorizontalAlignment="Center"
                  StretchDirection="DownOnly"
                  Margin="0,0,0,12">
             <Border Background="{StaticResource MonitorPickerContainerBackgroundBrush}"
@@ -64,6 +65,27 @@
             </controls:SettingsCard.HeaderIcon>
             <ToggleSwitch x:Name="BlackoutToggle"
                           Toggled="BlackoutToggle_Toggled" />
+        </controls:SettingsCard>
+
+        <controls:SettingsCard x:Uid="OpacityCard">
+            <controls:SettingsCard.HeaderIcon>
+                <FontIcon Glyph="&#xE790;" />
+            </controls:SettingsCard.HeaderIcon>
+            <Slider x:Name="OpacitySlider"
+                    Width="200"
+                    Minimum="0"
+                    Maximum="100"
+                    StepFrequency="1"
+                    SnapsTo="StepValues"
+                    ValueChanged="OpacitySlider_ValueChanged" />
+        </controls:SettingsCard>
+
+        <controls:SettingsCard x:Uid="ClickThroughCard">
+            <controls:SettingsCard.HeaderIcon>
+                <FontIcon Glyph="&#xE8B0;" />
+            </controls:SettingsCard.HeaderIcon>
+            <ToggleSwitch x:Name="ClickThroughToggle"
+                          Toggled="ClickThroughToggle_Toggled" />
         </controls:SettingsCard>
 
         <!-- Activation section -->
@@ -104,4 +126,5 @@
             </StackPanel>
         </controls:SettingsCard>
     </StackPanel>
+    </ScrollViewer>
 </winex:WindowEx>

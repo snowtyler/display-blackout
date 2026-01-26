@@ -126,7 +126,7 @@
     <comment>Short description of the application</comment>
   </data>
   <data name="TrayIconTooltip" xml:space="preserve">
-    <value>Display Blackout - Click to open settings, double-click to toggle (Win+Shift+B)</value>
+    <value>Display Blackout - Click to toggle (Win+Shift+B), double-click to open settings</value>
     <comment>Tooltip shown when hovering over the system tray icon</comment>
   </data>
   <data name="ContextMenuSettings" xml:space="preserve">
@@ -192,5 +192,21 @@
   <data name="MonitorAccessibleNamePrimary" xml:space="preserve">
     <value>Display {0} of {1}, primary</value>
     <comment>{0} is the display number, {1} is the total count. Used for the primary display.</comment>
+  </data>
+  <data name="OpacityCard.Header" xml:space="preserve">
+    <value>Opacity (%)</value>
+    <comment>Header for the opacity slider settings card</comment>
+  </data>
+  <data name="OpacityCard.Description" xml:space="preserve">
+    <value>Adjust how dark the blackout overlay appears</value>
+    <comment>Description for the opacity slider settings card</comment>
+  </data>
+  <data name="ClickThroughCard.Header" xml:space="preserve">
+    <value>Click through</value>
+    <comment>Header for the click-through toggle settings card</comment>
+  </data>
+  <data name="ClickThroughCard.Description" xml:space="preserve">
+    <value>Allow mouse and touch to pass through the overlay</value>
+    <comment>Description for the click-through toggle settings card</comment>
   </data>
 </root>

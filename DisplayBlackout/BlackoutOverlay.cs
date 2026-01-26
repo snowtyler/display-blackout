@@ -19,21 +19,36 @@ public sealed partial class BlackoutOverlay : IDisposable
     private static readonly object s_classLock = new();
     private static bool s_classRegistered;
     private static WndProcDelegate? s_wndProc;
+    private static readonly List<BlackoutOverlay> s_activeOverlays = [];
+    private static nint s_winEventHook;
+    private static WinEventDelegate? s_winEventProc;
+
+    private const uint WS_EX_TRANSPARENT = 0x00000020;
 
     private nint _hwnd1;
     private nint _hwnd2;
+    private uint _baseExStyle;
+    private bool _isClickThrough;
 
     private delegate nint WndProcDelegate(nint hwnd, uint msg, nint wParam, nint lParam);
+    private delegate void WinEventDelegate(nint hWinEventHook, uint eventType, nint hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
 
-    public BlackoutOverlay(RectInt32 bounds)
+    public BlackoutOverlay(RectInt32 bounds, int opacityPercent = 100, bool clickThrough = false)
     {
         EnsureWindowClassRegistered();
+        EnsureWinEventHookInstalled();
 
         // See class remarks for why we use two windows instead of one.
         int halfHeight = bounds.Height / 2;
 
+        // WS_EX_LAYERED (0x00080000) enables per-window alpha transparency
+        // WS_EX_TRANSPARENT (0x00000020) makes the window click-through (added conditionally)
+        _baseExStyle = 0x00000080 | 0x00000008 | 0x08000000 | 0x00080000; // WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOACTIVATE | WS_EX_LAYERED
+        _isClickThrough = clickThrough;
+        uint exStyle = _baseExStyle | (clickThrough ? WS_EX_TRANSPARENT : 0);
+
         _hwnd1 = CreateWindowExW(
-            0x00000080 | 0x00000008 | 0x08000000, // WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOACTIVATE
+            exStyle,
             WindowClassName,
             null,
             0x80000000, // WS_POPUP
@@ -52,7 +67,7 @@ public sealed partial class BlackoutOverlay : IDisposable
         }
 
         _hwnd2 = CreateWindowExW(
-            0x00000080 | 0x00000008 | 0x08000000, // WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOACTIVATE
+            exStyle,
             WindowClassName,
             null,
             0x80000000, // WS_POPUP
@@ -70,8 +85,77 @@ public sealed partial class BlackoutOverlay : IDisposable
             throw new Win32Exception(Marshal.GetLastPInvokeError());
         }
 
+        // Set initial opacity
+        SetOpacity(opacityPercent);
+
         ShowWindow(_hwnd1, 4); // SW_SHOWNOACTIVATE
         ShowWindow(_hwnd2, 4); // SW_SHOWNOACTIVATE
+
+        lock (s_classLock)
+        {
+            s_activeOverlays.Add(this);
+        }
+    }
+
+    /// <summary>
+    /// Sets the opacity of the overlay windows.
+    /// </summary>
+    /// <param name="opacityPercent">Opacity percentage from 0 (transparent) to 100 (opaque).</param>
+    public void SetOpacity(int opacityPercent)
+    {
+        byte alpha = (byte)(Math.Clamp(opacityPercent, 0, 100) * 255 / 100);
+        const uint LWA_ALPHA = 0x00000002;
+
+        if (_hwnd1 != 0)
+        {
+            SetLayeredWindowAttributes(_hwnd1, 0, alpha, LWA_ALPHA);
+        }
+        if (_hwnd2 != 0)
+        {
+            SetLayeredWindowAttributes(_hwnd2, 0, alpha, LWA_ALPHA);
+        }
+    }
+
+    /// <summary>
+    /// Sets whether the overlay windows are click-through.
+    /// </summary>
+    /// <param name="clickThrough">If true, mouse events pass through to windows underneath.</param>
+    public void SetClickThrough(bool clickThrough)
+    {
+        if (_isClickThrough == clickThrough) return;
+        _isClickThrough = clickThrough;
+
+        const int GWL_EXSTYLE = -20;
+        uint newExStyle = _baseExStyle | (clickThrough ? WS_EX_TRANSPARENT : 0);
+
+        if (_hwnd1 != 0)
+        {
+            SetWindowLongPtrW(_hwnd1, GWL_EXSTYLE, (nint)newExStyle);
+        }
+        if (_hwnd2 != 0)
+        {
+            SetWindowLongPtrW(_hwnd2, GWL_EXSTYLE, (nint)newExStyle);
+        }
+    }
+
+    /// <summary>
+    /// Re-asserts the topmost z-order for both windows.
+    /// </summary>
+    public void BringToFront()
+    {
+        const nint HWND_TOPMOST = -1;
+        const uint SWP_NOMOVE = 0x0002;
+        const uint SWP_NOSIZE = 0x0001;
+        const uint SWP_NOACTIVATE = 0x0010;
+
+        if (_hwnd1 != 0)
+        {
+            SetWindowPos(_hwnd1, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        }
+        if (_hwnd2 != 0)
+        {
+            SetWindowPos(_hwnd2, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        }
     }
 
     private static void EnsureWindowClassRegistered()
@@ -102,6 +186,41 @@ public sealed partial class BlackoutOverlay : IDisposable
         }
     }
 
+    private static void EnsureWinEventHookInstalled()
+    {
+        lock (s_classLock)
+        {
+            if (s_winEventHook != 0) return;
+
+            // Keep the delegate alive
+            s_winEventProc = WinEventProc;
+
+            const uint EVENT_SYSTEM_FOREGROUND = 0x0003;
+            const uint WINEVENT_OUTOFCONTEXT = 0x0000;
+
+            s_winEventHook = SetWinEventHook(
+                EVENT_SYSTEM_FOREGROUND,
+                EVENT_SYSTEM_FOREGROUND,
+                0,
+                s_winEventProc,
+                0,
+                0,
+                WINEVENT_OUTOFCONTEXT);
+        }
+    }
+
+    private static void WinEventProc(nint hWinEventHook, uint eventType, nint hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
+    {
+        // When any window becomes foreground, re-assert topmost for all overlays
+        lock (s_classLock)
+        {
+            foreach (var overlay in s_activeOverlays)
+            {
+                overlay.BringToFront();
+            }
+        }
+    }
+
     private static nint WndProc(nint hwnd, uint msg, nint wParam, nint lParam)
     {
         return DefWindowProcW(hwnd, msg, wParam, lParam);
@@ -109,6 +228,18 @@ public sealed partial class BlackoutOverlay : IDisposable
 
     public void Dispose()
     {
+        lock (s_classLock)
+        {
+            s_activeOverlays.Remove(this);
+
+            // Unhook when no overlays remain
+            if (s_activeOverlays.Count == 0 && s_winEventHook != 0)
+            {
+                UnhookWinEvent(s_winEventHook);
+                s_winEventHook = 0;
+            }
+        }
+
         if (_hwnd1 != 0)
         {
             DestroyWindow(_hwnd1);
@@ -175,4 +306,27 @@ public sealed partial class BlackoutOverlay : IDisposable
     [LibraryImport("user32.dll")]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
     private static partial nint LoadCursorW(nint hInstance, int lpCursorName);
+
+    [LibraryImport("user32.dll", SetLastError = true)]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool SetLayeredWindowAttributes(nint hwnd, uint crKey, byte bAlpha, uint dwFlags);
+
+    [LibraryImport("user32.dll", SetLastError = true)]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    private static partial nint SetWindowLongPtrW(nint hWnd, int nIndex, nint dwNewLong);
+
+    [LibraryImport("user32.dll", SetLastError = true)]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool SetWindowPos(nint hWnd, nint hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+
+    [LibraryImport("user32.dll", SetLastError = true)]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    private static partial nint SetWinEventHook(uint eventMin, uint eventMax, nint hmodWinEventProc, WinEventDelegate lpfnWinEventProc, uint idProcess, uint idThread, uint dwFlags);
+
+    [LibraryImport("user32.dll")]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool UnhookWinEvent(nint hWinEventHook);
 }
