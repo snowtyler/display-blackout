@@ -7,7 +7,8 @@ public sealed partial class BlackoutService : IDisposable
 {
     private readonly SettingsService _settingsService;
     private readonly Dictionary<ulong, BlackoutOverlay> _blackoutOverlays = [];
-    private HashSet<string>? _selectedMonitorBounds;
+    private HashSet<string>? _selectedMonitorKeys;
+    private Dictionary<ulong, string>? _displayAreaKeys;
     private int _opacity;
     private bool _clickThrough;
     private bool _isBlackedOut;
@@ -16,7 +17,7 @@ public sealed partial class BlackoutService : IDisposable
     public BlackoutService(SettingsService settingsService)
     {
         _settingsService = settingsService;
-        _selectedMonitorBounds = _settingsService.LoadSelectedMonitorBounds();
+        _selectedMonitorKeys = _settingsService.LoadSelectedMonitors();
         _opacity = _settingsService.LoadOpacity();
         _clickThrough = _settingsService.LoadClickThrough();
     }
@@ -26,13 +27,21 @@ public sealed partial class BlackoutService : IDisposable
     public event EventHandler<BlackoutStateChangedEventArgs>? BlackoutStateChanged;
 
     /// <summary>
-    /// Updates which monitors should be blacked out using their bounds as stable identifiers.
+    /// Initializes EDID-based display keys. Call this once at startup.
+    /// </summary>
+    public async Task InitializeAsync()
+    {
+        _displayAreaKeys = await DisplayMonitorHelper.GetDisplayAreaKeysAsync().ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Updates which monitors should be blacked out using their stable EDID-based keys.
     /// Null means default (all non-primary).
     /// </summary>
-    public void UpdateSelectedMonitors(HashSet<string>? monitorBounds)
+    public void UpdateSelectedMonitors(HashSet<string>? monitorKeys)
     {
-        _selectedMonitorBounds = monitorBounds;
-        _settingsService.SaveSelectedMonitorBounds(monitorBounds);
+        _selectedMonitorKeys = monitorKeys;
+        _settingsService.SaveSelectedMonitors(monitorKeys);
 
         // Refresh overlays if currently blacked out
         if (_isBlackedOut)
@@ -43,6 +52,8 @@ public sealed partial class BlackoutService : IDisposable
 
     private void RefreshOverlays()
     {
+        if (_displayAreaKeys == null) return;
+
         var displays = DisplayArea.FindAll();
         var primaryId = DisplayArea.Primary?.DisplayId.Value;
         var currentDisplayIds = new HashSet<ulong>();
@@ -52,11 +63,13 @@ public sealed partial class BlackoutService : IDisposable
             var display = displays[i];
             var displayId = display.DisplayId.Value;
             var bounds = display.OuterBounds;
-            var boundsKey = SettingsService.GetMonitorKey(bounds);
             currentDisplayIds.Add(displayId);
 
-            bool shouldBlackOut = _selectedMonitorBounds != null
-                ? _selectedMonitorBounds.Contains(boundsKey)
+            // Get the EDID-based key for this display
+            _displayAreaKeys.TryGetValue(displayId, out var monitorKey);
+
+            bool shouldBlackOut = _selectedMonitorKeys != null && monitorKey != null
+                ? _selectedMonitorKeys.Contains(monitorKey)
                 : displayId != primaryId;
 
             bool hasOverlay = _blackoutOverlays.ContainsKey(displayId);
@@ -85,18 +98,23 @@ public sealed partial class BlackoutService : IDisposable
     }
 
     /// <summary>
-    /// Checks if a monitor with the given bounds is selected for blackout.
+    /// Checks if a monitor with the given EDID key is selected for blackout.
     /// </summary>
-    public bool IsMonitorSelected(RectInt32 bounds)
+    public bool IsMonitorSelected(string monitorKey)
     {
-        if (_selectedMonitorBounds is null) return false;
-        return _selectedMonitorBounds.Contains(SettingsService.GetMonitorKey(bounds));
+        if (_selectedMonitorKeys is null) return false;
+        return _selectedMonitorKeys.Contains(monitorKey);
     }
 
     /// <summary>
-    /// Gets the currently selected monitor bounds for UI initialization.
+    /// Gets the currently selected monitor keys for UI initialization.
     /// </summary>
-    public IReadOnlySet<string>? SelectedMonitorBounds => _selectedMonitorBounds;
+    public IReadOnlySet<string>? SelectedMonitorKeys => _selectedMonitorKeys;
+
+    /// <summary>
+    /// Gets the cached display area keys (EDID-based).
+    /// </summary>
+    public IReadOnlyDictionary<ulong, string>? DisplayAreaKeys => _displayAreaKeys;
 
     /// <summary>
     /// Gets the current opacity percentage (0-100).
@@ -164,11 +182,14 @@ public sealed partial class BlackoutService : IDisposable
             var display = displays[i];
             var displayId = display.DisplayId.Value;
             var bounds = display.OuterBounds;
-            var boundsKey = SettingsService.GetMonitorKey(bounds);
+
+            // Get the hardware-based key for this display
+            string? monitorKey = null;
+            _displayAreaKeys?.TryGetValue(displayId, out monitorKey);
 
             // If selection is set, use it; otherwise default to all non-primary
-            bool shouldBlackOut = _selectedMonitorBounds != null
-                ? _selectedMonitorBounds.Contains(boundsKey)
+            bool shouldBlackOut = _selectedMonitorKeys != null && monitorKey != null
+                ? _selectedMonitorKeys.Contains(monitorKey)
                 : displayId != primaryId;
 
             if (!shouldBlackOut) continue;

@@ -1,11 +1,10 @@
-using Windows.Graphics;
 using Windows.Storage;
 
 namespace DisplayBlackout.Services;
 
 public sealed class SettingsService
 {
-    private const string SelectedMonitorBoundsKey = "SelectedMonitorBounds";
+    private const string SelectedMonitorsKey = "SelectedMonitors_v2"; // v2 = EDID-based keys
     private const string OpacityKey = "Opacity";
     private const string ClickThroughKey = "ClickThrough";
     private const int DefaultOpacity = 100;
@@ -13,37 +12,30 @@ public sealed class SettingsService
 
     private readonly ApplicationDataContainer _localSettings = ApplicationData.Current.LocalSettings;
 
-    /// <summary>
-    /// Creates a stable identifier for a monitor based on its bounds.
-    /// Format: "X,Y,W,H" (e.g., "0,0,1920,1080")
-    /// </summary>
-    public static string GetMonitorKey(RectInt32 bounds)
-        => $"{bounds.X},{bounds.Y},{bounds.Width},{bounds.Height}";
-
-    public HashSet<string>? LoadSelectedMonitorBounds()
+    public HashSet<string>? LoadSelectedMonitors()
     {
-        if (_localSettings.Values.TryGetValue(SelectedMonitorBoundsKey, out var value) && value is string str)
+        if (_localSettings.Values.TryGetValue(SelectedMonitorsKey, out var value) && value is string str)
         {
-            var bounds = new HashSet<string>();
+            var keys = new HashSet<string>();
             foreach (var part in str.Split('|', StringSplitOptions.RemoveEmptyEntries))
             {
-                bounds.Add(part);
+                keys.Add(part);
             }
-            return bounds.Count > 0 ? bounds : null;
+            return keys.Count > 0 ? keys : null;
         }
 
         return null;
     }
 
-    public void SaveSelectedMonitorBounds(HashSet<string>? monitorBounds)
+    public void SaveSelectedMonitors(HashSet<string>? monitorKeys)
     {
-        if (monitorBounds is null || monitorBounds.Count == 0)
+        if (monitorKeys is null || monitorKeys.Count == 0)
         {
-            _localSettings.Values.Remove(SelectedMonitorBoundsKey);
+            _localSettings.Values.Remove(SelectedMonitorsKey);
         }
         else
         {
-            _localSettings.Values[SelectedMonitorBoundsKey] = string.Join('|', monitorBounds);
+            _localSettings.Values[SelectedMonitorsKey] = string.Join('|', monitorKeys);
         }
     }
 

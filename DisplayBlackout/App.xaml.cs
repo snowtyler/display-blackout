@@ -28,7 +28,7 @@ public sealed partial class App : Application, IDisposable
         InitializeComponent();
     }
 
-    protected override void OnLaunched(LaunchActivatedEventArgs args)
+    protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
         bool openSettings = Environment.GetCommandLineArgs()
             .Skip(1) // Skip executable path
@@ -36,6 +36,9 @@ public sealed partial class App : Application, IDisposable
 
         _settingsService = new SettingsService();
         _blackoutService = new BlackoutService(_settingsService);
+
+        // Initialize hardware-based display keys
+        await _blackoutService.InitializeAsync().ConfigureAwait(true);
 
         // Create a hidden window for hotkey messages
         _hiddenWindow = new Window { Title = "DisplayBlackoutHidden" };
